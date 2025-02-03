@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"os"
+
+	"kurtestosis/cli/commands"
 
 	"github.com/sirupsen/logrus"
 )
@@ -30,9 +33,18 @@ func main() {
 		CallerPrettyfier:          nil,
 	})
 
-	exitCode := 0
-
-	logrus.Info("kurtestosis CLI is still work in progress")
-
+	err := commands.RootCmd.Execute()
+	exitCode := extractExitCodeAfterExecution(err)
 	os.Exit(exitCode)
+}
+
+func extractExitCodeAfterExecution(err error) int {
+	if err == nil {
+		return 0
+	}
+
+	fullErrorMessage := fmt.Sprintf("Error: %v", err)
+	commands.RootCmd.PrintErrln(fullErrorMessage)
+
+	return 1
 }
