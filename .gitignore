@@ -19,3 +19,6 @@
 
 # env file
 .env
+
+# Kurtestosis temporary files
+.kurtestosis

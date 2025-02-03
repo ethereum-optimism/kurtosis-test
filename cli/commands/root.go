@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/kurtosis-tech/kurtosis/container-engine-lib/lib/backend_interface/objects/enclave"
 	"github.com/kurtosis-tech/kurtosis/container-engine-lib/lib/backend_interface/objects/image_download_mode"
 	"github.com/kurtosis-tech/kurtosis/container-engine-lib/lib/database_accessors/enclave_db"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/service_network"
@@ -27,15 +28,22 @@ import (
 
 const (
 	logLevelStrFlag = "log-level"
+	tempDirStrFlag = "temp-dir"
 
-	// TODO
-	repositoriesDirPath = "./girepos"
-	githubAuthDirPath = "./gitcreds"
-	tempDirectoriesDirPath = "./tmpdirs"
+	testEnclaveUUID = "kurtestosis-enclave"
 )
 
+// The log level is configurable via the CLI
 var logLevelStr string
 var defaultLogLevelStr = logrus.InfoLevel.String()
+
+// The directory for temporary files is configurable as well
+var tempDirStr string
+var defaultTempDirStr = ".kurtestosis"
+
+var repositoriesDirPath string
+var githubAuthDirPath string
+var tempDirectoriesDirPath string
 
 // RootCmd Suppressing exhaustruct requirement because this struct has ~40 properties
 // nolint: exhaustruct
@@ -59,6 +67,13 @@ func init() {
 		logLevelStrFlag,
 		defaultLogLevelStr,
 		"Sets the level that the CLI will log at ("+strings.Join(getAllLogLevelStrings(), "|")+")",
+	)
+
+	RootCmd.PersistentFlags().StringVar(
+		&tempDirStr,
+		tempDirStrFlag,
+		defaultTempDirStr,
+		"Default directory for kurtosis temporary files",
 	)
 }
 
@@ -107,6 +122,32 @@ func runTestSuite(testSuitePath string) error {
 		return err
 	}
 
+	// 
+	// Then we create the filesystem
+	// 
+
+	// The first one is the path for cloned repositories
+	err = os.MkdirAll(repositoriesDirPath, 0700)
+	if err != nil {
+		return err
+	}
+
+	// Then github credentials
+	err = os.MkdirAll(githubAuthDirPath, 0700)
+	if err != nil {
+		return err
+	}
+
+	// And finally the temporary directories
+	err = os.MkdirAll(tempDirectoriesDirPath, 0700)
+	if err != nil {
+		return err
+	}
+
+	// 
+	// Now the runtime setup for the interpreter
+	// 
+
 	enclaveDb, err := getEnclaveDBForTest()
 	if err != nil {
 		return err
@@ -128,9 +169,11 @@ func runTestSuite(testSuitePath string) error {
 	}
 
 	serviceNetwork := &service_network.MockServiceNetwork{}
+	serviceNetwork.EXPECT().GetEnclaveUuid().Maybe().Return(enclave.EnclaveUUID(testEnclaveUUID))
+
 	interpreter := startosis_engine.NewStartosisInterpreter(serviceNetwork, gitPackageContentProvider, runtimeValueStore, nil, "", interpretationTimeValueStore)
 
-	interpreter.Interpret(
+	_, _, interpretationError := interpreter.Interpret(
 		context.Background(), // context
 		startosis_constants.PackageIdPlaceholderForStandaloneScript, // packageId
 		"", // FIXME mainFunctionName
@@ -143,6 +186,12 @@ func runTestSuite(testSuitePath string) error {
 		resolver.NewInstructionsPlanMask(0), // instructionsPlanMask
 		image_download_mode.ImageDownloadMode_Missing, // imageDownloadMode
 	)
+
+	if interpretationError != nil {
+		logrus.Errorf("Failed to interpret %s: %v", testSuitePath, interpretationError)
+		
+		return fmt.Errorf("failed to interpret %s: %v", testSuitePath, interpretationError)
+	}
 
 	return nil
 }
@@ -195,6 +244,7 @@ func getAllLogLevelStrings() []string {
 
 // Setup function to run before any command execution
 func setupCLI(cmd *cobra.Command, args []string) error {
+	// First we configure the log level
 	logLevel, err := logrus.ParseLevel(logLevelStr)
 	if err != nil {
 		return fmt.Errorf("error parsing the %s CLI argument: %w", logLevelStrFlag, err)
@@ -202,6 +252,11 @@ func setupCLI(cmd *cobra.Command, args []string) error {
 
 	logrus.SetOutput(cmd.OutOrStdout())
 	logrus.SetLevel(logLevel)
+
+	// Now we setup the filesystem
+	repositoriesDirPath = filepath.Join(tempDirStr, "repos")
+	githubAuthDirPath = filepath.Join(tempDirStr, "auth")
+	tempDirectoriesDirPath = filepath.Join(tempDirStr, "temp")
 
 	return nil
 }
