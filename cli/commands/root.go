@@ -1,16 +1,37 @@
 package commands
 
 import (
+	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/kurtosis-tech/kurtosis/container-engine-lib/lib/backend_interface/objects/image_download_mode"
+	"github.com/kurtosis-tech/kurtosis/container-engine-lib/lib/database_accessors/enclave_db"
+	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/service_network"
+	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine"
+	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/enclave_structure"
+	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/instructions_plan/resolver"
+	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/interpretation_time_value_store"
+	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/kurtosis_instruction/shared_helpers"
+	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/runtime_value_store"
+	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/startosis_constants"
+	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/startosis_packages/git_package_content_provider"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	bolt "go.etcd.io/bbolt"
 )
 
 const (
 	logLevelStrFlag = "log-level"
+
+	// TODO
+	repositoriesDirPath = "./girepos"
+	githubAuthDirPath = "./gitcreds"
+	tempDirectoriesDirPath = "./tmpdirs"
 )
 
 var logLevelStr string
@@ -66,7 +87,100 @@ func run(cmd *cobra.Command, args []string) error {
 	// Talk to the user
 	logrus.Debugf("Found %d matching test suites:\n%s", len(testSuitePaths), strings.Join(testSuitePaths, "\n"))
 
+	// Run the test suites
+	for _, testSuitePath := range testSuitePaths {
+		logrus.Infof("Running test suite from %s", testSuitePath)
+
+        err := runTestSuite(testSuitePath)
+        if err != nil {
+            logrus.Errorf("Error running test suite %s: %v", testSuitePath, err)
+        }
+    }
+
 	return nil
+}
+
+func runTestSuite(testSuitePath string) error {
+	// First we load the test suite script
+	testSuiteScript, err := os.ReadFile(testSuitePath)
+	if err != nil {
+		return err
+	}
+
+	enclaveDb, err := getEnclaveDBForTest()
+	if err != nil {
+		return err
+	}
+
+	githubAuthProvider := git_package_content_provider.NewGitHubPackageAuthProvider(githubAuthDirPath)
+	gitPackageContentProvider := git_package_content_provider.NewGitPackageContentProvider(repositoriesDirPath, tempDirectoriesDirPath, githubAuthProvider, enclaveDb)
+
+	dummySerde := shared_helpers.NewDummyStarlarkValueSerDeForTest()
+
+	runtimeValueStore, err := runtime_value_store.CreateRuntimeValueStore(dummySerde, enclaveDb)
+	if err != nil {
+		return err
+	}
+
+	interpretationTimeValueStore, err := interpretation_time_value_store.CreateInterpretationTimeValueStore(enclaveDb, dummySerde)
+	if err != nil {
+		return err
+	}
+
+	serviceNetwork := &service_network.MockServiceNetwork{}
+	interpreter := startosis_engine.NewStartosisInterpreter(serviceNetwork, gitPackageContentProvider, runtimeValueStore, nil, "", interpretationTimeValueStore)
+
+	interpreter.Interpret(
+		context.Background(), // context
+		startosis_constants.PackageIdPlaceholderForStandaloneScript, // packageId
+		"", // FIXME mainFunctionName
+		map[string]string{}, // packageReplaceOptions
+		startosis_constants.PlaceHolderMainFileForPlaceStandAloneScript, // relativePathtoMainFile
+		string(testSuiteScript), // serializedStarlark
+		startosis_constants.EmptyInputArgs, // serializedJsonParams
+		false, // nonBlockingMode 
+		enclave_structure.NewEnclaveComponents(), // enclaveComponents
+		resolver.NewInstructionsPlanMask(0), // instructionsPlanMask
+		image_download_mode.ImageDownloadMode_Missing, // imageDownloadMode
+	)
+
+	return nil
+}
+
+// Creates an enclave
+func getEnclaveDBForTest() (*enclave_db.EnclaveDB, error) {
+	// Create a new temporary enclave database file
+	file, err := os.CreateTemp(os.TempDir(), "*.db")
+
+	// We register a cleanup function
+	defer func() {
+		err = os.Remove(file.Name())
+
+		if err != nil {
+			logrus.Warnf("Failed to remove temporary database file %s: %v", file.Name(), err)
+		}
+	}()
+
+	// We make sure that the file has been created okay
+	if err != nil {
+		logrus.Errorf("Failed to create temporary database file: %v", err)
+
+		return nil, fmt.Errorf("Failed to create temporary database file: %w", err)
+	}
+
+	// Now we open the database
+	db, err := bolt.Open(file.Name(), 0666, nil)
+	if err != nil {
+		logrus.Errorf("Failed to open a database in %s: %v", file.Name(), err)
+
+		return nil, fmt.Errorf("Failed to open a database in %s: %w", file.Name(), err)
+	}
+
+	enclaveDb := &enclave_db.EnclaveDB{
+		DB: db,
+	}
+
+	return enclaveDb, nil
 }
 
 // Concatenates all logrus log level strings into a string array
