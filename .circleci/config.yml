@@ -16,7 +16,7 @@ commands:
     steps:
       - run:
           name: Install mise
-          command: curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise sh
+          command: curl https://mise.run | MISE_INSTALL_PATH=/home/circleci/bin/mise sh
       - run:
           name: Activate mise
           command: echo 'eval "$(mise activate bash)"' >> $BASH_ENV
