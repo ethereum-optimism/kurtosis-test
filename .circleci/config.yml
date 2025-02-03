@@ -29,19 +29,15 @@ commands:
       from:
         description: Path to go.sum file
         type: string
-        default: go.sum
+        default: go.work.sum
       path:
         description: Go module cache path
         type: string
-        default: /go/pkg/mod
+        default: /home/circleci/.go_workspace/pkg/mod
       version:
         description: Version (cache breaker)
         type: string
         default: v1
-      after_download:
-        description: List of steps to run after downloading go modules
-        type: steps
-        default: []
     steps:
       - restore_cache:
           name: Restore Go modules cache
@@ -50,7 +46,6 @@ commands:
       - run:
           name: Download Go modules
           command: go mod download
-      - steps: << parameters.after_download >>
       - save_cache:
           key: go-mod-{{ arch }}-{{ checksum "<< parameters.from >>" }}-<< parameters.version >>
           paths:
