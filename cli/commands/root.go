@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -28,7 +29,7 @@ var RootCmd = &cobra.Command{
 	SilenceErrors:     true,
 	PersistentPreRunE: setupCLI,
 	Args: cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
-	Run: run,
+	RunE: run,
 }
 
 func init() {
@@ -40,10 +41,32 @@ func init() {
 	)
 }
 
-func run(cmd *cobra.Command, args []string) {
+func run(cmd *cobra.Command, args []string) error {
 	logrus.Warn("kurtestosis CLI is still work in progress")
 
-	// TODO This function will collect the test suites & run them
+	globPattern := args[0]
+
+	// First we expand the glob into file paths
+	// 
+	// These are the test suites that we will run
+    testSuitePaths, err := filepath.Glob(globPattern)
+    if err != nil {
+        logrus.Errorf("Error expanding glob pattern: %v", err)
+
+		return err
+    }
+
+	// Exit if there are no test suites to run
+    if len(testSuitePaths) == 0 {
+        logrus.Warn("No test suites found matching the glob pattern")
+        
+		return nil
+    }
+
+	// Talk to the user
+	logrus.Debugf("Found %d matching test suites:\n%s", len(testSuitePaths), strings.Join(testSuitePaths, "\n"))
+
+	return nil
 }
 
 // Concatenates all logrus log level strings into a string array
