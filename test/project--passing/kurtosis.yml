@@ -1,0 +1,6 @@
+name: github.com/kurtestosis/project--passing
+description: |
+  # Kurtestosis SUT
+  This is a dummy Kurtosis package for the purpose of testing
+
+  The tests here should pass
