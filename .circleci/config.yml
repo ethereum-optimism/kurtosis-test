@@ -112,9 +112,8 @@ jobs:
       - install-go-modules
       # FIXME GITHUB_TOKEN for goreleaser
       - run:
-          name: Run GoReleaser
-          command: goreleaser release --clean
-          working_directory: ./cli
+          name: Release CLI
+          command: just release-cli
 
 
   cli-test:

@@ -1,3 +1,5 @@
+CLI_DIRECTORY := "./cli"
+
 # Runs go linter
 # 
 # With no arguments, it will lint all go workspaces
@@ -6,7 +8,7 @@ lint args="$(go list -f '{{.Dir}}/...' -m | xargs)":
 
 # Runs CLI lint only
 lint-cli:
-    just lint ./cli/...
+    just lint {{CLI_DIRECTORY}}/...
 
 # Runs go build
 # 
@@ -17,7 +19,7 @@ build args="$(go list -f '{{.Dir}}/...' -m | xargs)":
 
 # Runs CLI build only
 build-cli:
-    just build ./cli/...
+    just build {{CLI_DIRECTORY}}/...
 
 # Runs go tests
 # 
@@ -27,9 +29,12 @@ test args="$(go list -f '{{.Dir}}/...' -m | xargs)":
 
 # Runs CLI tests only
 test-cli: 
-    just test ./cli/...
+    just test {{CLI_DIRECTORY}}/...
 
 
 # Cleans the build artifacts
 clean:
     rm -rf build
+
+release-cli:
+    cd {{CLI_DIRECTORY}} && goreleaser release --clean
