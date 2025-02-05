@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"kurtestosis/cli/commands"
@@ -34,17 +33,9 @@ func main() {
 	})
 
 	err := commands.RootCmd.Execute()
-	exitCode := extractExitCodeAfterExecution(err)
-	os.Exit(exitCode)
-}
-
-func extractExitCodeAfterExecution(err error) int {
-	if err == nil {
-		return 0
+	if err != nil {
+		logrus.Debugf("Run exited with error: %v", err)
+		
+		os.Exit(1)
 	}
-
-	fullErrorMessage := fmt.Sprintf("Error: %v", err)
-	commands.RootCmd.PrintErrln(fullErrorMessage)
-
-	return 1
 }
