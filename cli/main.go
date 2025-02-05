@@ -34,7 +34,7 @@ func main() {
 
 	err := commands.RootCmd.Execute()
 	if err != nil {
-		logrus.Debugf("Run exited with error: %v", err)
+		logrus.Errorf("%v", err)
 		
 		os.Exit(1)
 	}
