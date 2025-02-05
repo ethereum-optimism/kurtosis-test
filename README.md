@@ -46,16 +46,3 @@ Install `mise` by following the instructions provided on the
 ```sh
 mise install
 ```
-
-### Submodule dependencies
-
-Install the dependencies by running the following: 
-```bash
-git submodule update --remote --init
-
-# to build rvgo target
-make build-rvgo
-
-# to build rvsol target
-make build-rvsol
-```
