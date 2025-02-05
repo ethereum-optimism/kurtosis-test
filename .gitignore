@@ -22,3 +22,6 @@
 
 # Kurtestosis temporary files
 .kurtestosis
+
+# Build artifacts
+/build

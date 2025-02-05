@@ -8,6 +8,7 @@ executors:
 workflows:
   main:
     jobs:
+      - go-build
       - go-lint
       - go-test
 
@@ -52,6 +53,20 @@ commands:
               - << parameters.path >>
 
 jobs:
+  go-build:
+    executor: default
+    steps:
+      - checkout
+      - install-dependencies
+      - install-go-modules
+      - run:
+          name: Run build
+          command: just build
+      - persist_to_workspace:
+          root: build
+          paths:
+            - cli
+
   go-lint:
     executor: default
     steps:
