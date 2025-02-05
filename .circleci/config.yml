@@ -14,6 +14,20 @@ workflows:
       - cli-test:
           requires:
             - go-build
+  
+  release:
+    jobs:
+      - go-release:
+          context:
+            - circleci-repo-kurtestosis
+          filters: 
+            tags:
+              only: 
+                - /^v?\d+\.\d+\.\d+.*?/
+            # Without explicitly ignoring all branches, CircleCI will run the job on all branches
+            # even if no tags have been pushed
+            branches:
+              ignore: /.*/
 
 commands:
   install-dependencies:
@@ -89,6 +103,19 @@ jobs:
       - run:
           name: Run tests
           command: just test
+
+  go-release:
+    executor: default
+    steps:
+      - checkout
+      - install-dependencies
+      - install-go-modules
+      # FIXME GITHUB_TOKEN for goreleaser
+      - run:
+          name: Run GoReleaser
+          command: goreleaser release --clean
+          working_directory: ./cli
+
 
   cli-test:
     executor: default
