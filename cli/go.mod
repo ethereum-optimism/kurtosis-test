@@ -3,21 +3,27 @@ module kurtestosis/cli
 go 1.21.13
 
 require (
-	github.com/kurtosis-tech/kurtosis/api/golang v0.84.10 // indirect
+	github.com/kurtosis-tech/kurtosis/api/golang v0.84.10
 	github.com/kurtosis-tech/kurtosis/container-engine-lib v0.0.0
 	github.com/kurtosis-tech/kurtosis/core/files_artifacts_expander v0.0.0 // indirect
 	github.com/kurtosis-tech/kurtosis/core/server v0.0.0-20250116034716-84e2fe2b35f5
 	github.com/kurtosis-tech/kurtosis/name_generator v0.0.0 // indirect
 	github.com/kurtosis-tech/kurtosis/path-compression v0.0.0-20250116034716-84e2fe2b35f5 // indirect
-	github.com/kurtosis-tech/stacktrace v0.0.0-20211028211901-1c67a77b5409 // indirect
+	github.com/kurtosis-tech/stacktrace v0.0.0-20211028211901-1c67a77b5409
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.1
 )
 
-require go.etcd.io/bbolt v1.3.7
+require (
+	github.com/stretchr/testify v1.8.4
+	go.etcd.io/bbolt v1.3.7
+	go.starlark.net v0.0.0-20230224151120-c52844e64a10
+	gopkg.in/godo.v2 v2.0.9
+)
 
 require (
 	dario.cat/mergo v1.0.0 // indirect
+	github.com/MichaelTJones/walk v0.0.0-20161122175330-4748e29d5718 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20230828082145-3c4c8a2d2371 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect
@@ -29,6 +35,7 @@ require (
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dsnet/compress v0.0.2-0.20210315054119-f66993602bf5 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
+	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
 	github.com/go-git/go-billy/v5 v5.5.0 // indirect
 	github.com/go-git/go-git/v5 v5.11.0 // indirect
@@ -49,7 +56,9 @@ require (
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
+	github.com/kurtosis-tech/kurtosis/grpc-file-transfer/golang v0.0.0 // indirect
 	github.com/mattn/go-shellwords v1.0.12 // indirect
+	github.com/mgutz/str v1.2.0 // indirect
 	github.com/mholt/archiver v3.1.1+incompatible // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
@@ -64,7 +73,6 @@ require (
 	github.com/skeema/knownhosts v1.2.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
-	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/ulikunitz/xz v0.5.11 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
@@ -72,7 +80,6 @@ require (
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c // indirect
-	go.starlark.net v0.0.0-20230224151120-c52844e64a10 // indirect
 	golang.org/x/crypto v0.17.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/mod v0.13.0 // indirect
@@ -109,3 +116,6 @@ replace github.com/kurtosis-tech/kurtosis/name_generator v0.0.0 => github.com/ku
 replace github.com/kurtosis-tech/kurtosis/metrics-library/golang v0.0.0 => github.com/kurtosis-tech/kurtosis/metrics-library/golang v0.0.0-20250116034716-84e2fe2b35f5
 
 replace github.com/kurtosis-tech/kurtosis/api/golang v0.84.10 => github.com/kurtosis-tech/kurtosis/api/golang v1.4.3
+
+// Temporary until https://github.com/kurtosis-tech/kurtosis/pull/2642 is merged
+replace github.com/kurtosis-tech/kurtosis/core/server v0.0.0-20250116034716-84e2fe2b35f5 => github.com/janjakubnanista/kurtosis/core/server v0.0.0-20250201003529-be5c0231436c

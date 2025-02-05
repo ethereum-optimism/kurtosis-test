@@ -3,9 +3,12 @@ package commands
 import (
 	"context"
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"kurtestosis/cli/runner"
 
 	"github.com/kurtosis-tech/kurtosis/container-engine-lib/lib/backend_interface/objects/enclave"
 	"github.com/kurtosis-tech/kurtosis/container-engine-lib/lib/backend_interface/objects/image_download_mode"
@@ -15,10 +18,12 @@ import (
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/enclave_structure"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/instructions_plan/resolver"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/interpretation_time_value_store"
-	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/kurtosis_instruction/shared_helpers"
+	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/kurtosis_types"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/runtime_value_store"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/startosis_constants"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/startosis_packages/git_package_content_provider"
+	"github.com/kurtosis-tech/stacktrace"
+	"go.starlark.net/starlark"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -27,23 +32,37 @@ import (
 )
 
 const (
+	// CLI Flag names
 	logLevelStrFlag = "log-level"
-	tempDirStrFlag = "temp-dir"
+	tempDirRootStrFlag = "temp-dir"
+	testFilePatternStrFlag = "test-file-pattern"
+	testPatternStrFlag = "test-pattern"
 
 	testEnclaveUUID = "kurtestosis-enclave"
 )
 
-// The log level is configurable via the CLI
-var logLevelStr string
-var defaultLogLevelStr = logrus.InfoLevel.String()
+// The variables configurable using CLI flags
+var (
+	// Log level for the CLI
+	logLevelStr string
 
-// The directory for temporary files is configurable as well
-var tempDirStr string
-var defaultTempDirStr = ".kurtestosis"
+	// Temporary directory in which to store kurtosis' temporary filesystem
+	tempDirRootStr string
 
-var repositoriesDirPath string
-var githubAuthDirPath string
-var tempDirectoriesDirPath string
+	// Glob pattern to use when looking for test files
+	testFilePatternStr string
+
+	// Glob pattern to use when looking for test functions
+	testPatternStr string
+
+	// These are derived from tempDirRootStr
+	// 
+	// TODO Replace with getters
+	repositoriesDirPath string
+	githubAuthDirPath string
+	tempDirectoriesDirPath string
+)
+
 
 // RootCmd Suppressing exhaustruct requirement because this struct has ~40 properties
 // nolint: exhaustruct
@@ -56,130 +75,154 @@ var RootCmd = &cobra.Command{
 	// Cobra prints the errors itself, however, with this flag disabled it give Kurtosis control
 	// and allows us to post process the error in the main.go file.
 	SilenceErrors:     true,
+	// The PersistentPreRunE hook runs before every descendant command
+	// and will setup things like log level
 	PersistentPreRunE: setupCLI,
-	Args: cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
+	// The PrerunE will only run before this command and will setup
+	// command-specific environment
+	PreRunE: setupCommand,
 	RunE: run,
+	Args: cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 }
 
 func init() {
 	RootCmd.PersistentFlags().StringVar(
 		&logLevelStr,
 		logLevelStrFlag,
-		defaultLogLevelStr,
+		logrus.InfoLevel.String(),
 		"Sets the level that the CLI will log at ("+strings.Join(getAllLogLevelStrings(), "|")+")",
 	)
 
-	RootCmd.PersistentFlags().StringVar(
-		&tempDirStr,
-		tempDirStrFlag,
-		defaultTempDirStr,
-		"Default directory for kurtosis temporary files",
+	RootCmd.Flags().StringVar(
+		&tempDirRootStr,
+		tempDirRootStrFlag,
+		KurtestosisDefaultTempDirRoot,
+		"Directory for kurtosis temporary files",
+	)
+
+	RootCmd.Flags().StringVar(
+		&testFilePatternStr,
+		testFilePatternStrFlag,
+		KurtestosisDefaultTestFilePattern,
+		"Glob expression to use when looking for starlark test files",
+	)
+
+	RootCmd.Flags().StringVar(
+		&testPatternStr,
+		testPatternStrFlag,
+		KurtestosisDefaultTestFunctionPattern,
+		"Glob expression to use when looking for test functions",
 	)
 }
 
 func run(cmd *cobra.Command, args []string) error {
 	logrus.Warn("kurtestosis CLI is still work in progress")
 
-	globPattern := args[0]
+	// First we load the project
+	projectPath := args[0]
+	project, projectErr := runner.LoadProject(args[0])
+	if projectErr != nil {
+		logrus.Errorf("Failed to load project from %s: %v", projectPath, projectErr)
 
-	// First we expand the glob into file paths
-	// 
-	// These are the test suites that we will run
-    testSuitePaths, err := filepath.Glob(globPattern)
-    if err != nil {
-        logrus.Errorf("Error expanding glob pattern: %v", err)
+		return fmt.Errorf("failed to load project from %s: %w", projectPath, projectErr)
+	}
 
-		return err
-    }
+	// Let's now get the list of matching test files
+	testFiles, testFilesErr := runner.ListMatchingTestFiles(project, testFilePatternStr)
+	if testFilesErr != nil {
+		logrus.Errorf("Error matching test files in project: %v", testFilesErr)
+
+		return fmt.Errorf("error matching test files in project: %w", testFilesErr)
+	}
 
 	// Exit if there are no test suites to run
-    if len(testSuitePaths) == 0 {
+    if len(testFiles) == 0 {
         logrus.Warn("No test suites found matching the glob pattern")
         
 		return nil
     }
 
-	// Talk to the user
-	logrus.Debugf("Found %d matching test suites:\n%s", len(testSuitePaths), strings.Join(testSuitePaths, "\n"))
+	// The summary of the whole test run
+	testSuiteSummary := runner.NewTestSuiteSummary(project)
 
 	// Run the test suites
-	for _, testSuitePath := range testSuitePaths {
-		logrus.Infof("Running test suite from %s", testSuitePath)
-
-        err := runTestSuite(testSuitePath)
+	for _, testFile := range testFiles {
+		testFileSummary, err := runTestFile(testFile)
         if err != nil {
-            logrus.Errorf("Error running test suite %s: %v", testSuitePath, err)
+            logrus.Errorf("Error running test suite %s: %v", testFile, err)
+
+			return fmt.Errorf("error running test suite %s: %v", testFile, err)
         }
+
+		testSuiteSummary.Append(testFileSummary)
     }
 
-	return nil
+	if testSuiteSummary.Success() {
+		return nil
+	}
+
+	logrus.Errorf("Test suite failed")
+
+	return fmt.Errorf("Test suite failed")
 }
 
-func runTestSuite(testSuitePath string) error {
-	// First we load the test suite script
-	testSuiteScript, err := os.ReadFile(testSuitePath)
-	if err != nil {
-		return err
+func runTestFile(testFile *runner.TestFile) (*runner.TestFileSummary, error) {
+	// The summary object will hold the test results for this test file
+	testFileSummary := runner.NewTestFileSummary(testFile)
+
+	// First we parse the test file and extract the names of matching test functions
+	testFunctions, testFunctionsErr := runner.ListMatchingTests(testFile, testPatternStr)
+	if testFunctionsErr != nil {
+		logrus.Errorf("Failed to list matching test functions in %s: %v", testFile, testFunctionsErr)
+        
+		return nil, fmt.Errorf("failed to list matching test functions in %s: %w", testFile, testFunctionsErr)
 	}
 
-	// 
-	// Then we create the filesystem
-	// 
+	// Exit if there are no test suites to run
+    if len(testFunctions) == 0 {
+        logrus.Warnf("No tests found matching the test pattern %s in %s", testPatternStr, testFile)
+        
+		return testFileSummary, nil
+    }
 
-	// The first one is the path for cloned repositories
-	err = os.MkdirAll(repositoriesDirPath, 0700)
-	if err != nil {
-		return err
+	logrus.Infof("SUITE %s", testFile)
+
+	// Iterate over the test suites and run them one by one, collecting the test run summaries
+	for _, testFunction := range(testFunctions) {
+		testFunctionSummary, testFunctionErr := runTestFunction(testFunction)
+		if testFunctionErr != nil {
+			logrus.Errorf("Failed to run test function %s: %v", testFunction, testFunctionErr)
+
+			return nil, fmt.Errorf("failed to run test function %s: %w", testFunction, testFunctionErr)
+		}
+
+		testFileSummary.Append(testFunctionSummary)
 	}
 
-	// Then github credentials
-	err = os.MkdirAll(githubAuthDirPath, 0700)
-	if err != nil {
-		return err
+	return testFileSummary, nil
+}
+
+func runTestFunction(testFunction *runner.TestFunction) (*runner.TestFunctionSummary, error) {
+	// The summary object will hold the test results for this test function
+	logrus.Debugf("\tRUN %ss", testFunction)
+
+	reporter := runner.NewStarlarktestReporter(testFunction)
+	processBuiltins := runner.CreateProcessBuiltins(reporter)
+
+	interpreter, interpreterErr := createInterpreter(testFunction.TestFile.Project, processBuiltins)
+	if interpreterErr != nil {
+		return nil, interpreterErr
 	}
 
-	// And finally the temporary directories
-	err = os.MkdirAll(tempDirectoriesDirPath, 0700)
-	if err != nil {
-		return err
-	}
+	testSuiteScript := runner.CreateTestSuite(testFunction)
 
-	// 
-	// Now the runtime setup for the interpreter
-	// 
-
-	enclaveDb, err := getEnclaveDBForTest()
-	if err != nil {
-		return err
-	}
-
-	githubAuthProvider := git_package_content_provider.NewGitHubPackageAuthProvider(githubAuthDirPath)
-	gitPackageContentProvider := git_package_content_provider.NewGitPackageContentProvider(repositoriesDirPath, tempDirectoriesDirPath, githubAuthProvider, enclaveDb)
-
-	dummySerde := shared_helpers.NewDummyStarlarkValueSerDeForTest()
-
-	runtimeValueStore, err := runtime_value_store.CreateRuntimeValueStore(dummySerde, enclaveDb)
-	if err != nil {
-		return err
-	}
-
-	interpretationTimeValueStore, err := interpretation_time_value_store.CreateInterpretationTimeValueStore(enclaveDb, dummySerde)
-	if err != nil {
-		return err
-	}
-
-	serviceNetwork := &service_network.MockServiceNetwork{}
-	serviceNetwork.EXPECT().GetEnclaveUuid().Maybe().Return(enclave.EnclaveUUID(testEnclaveUUID))
-
-	interpreter := startosis_engine.NewStartosisInterpreter(serviceNetwork, gitPackageContentProvider, runtimeValueStore, nil, "", interpretationTimeValueStore)
-
-	_, _, interpretationError := interpreter.Interpret(
+	interpreter.Interpret(
 		context.Background(), // context
-		startosis_constants.PackageIdPlaceholderForStandaloneScript, // packageId
-		"", // FIXME mainFunctionName
-		map[string]string{}, // packageReplaceOptions
+		testFunction.TestFile.Project.KurotosisYml.PackageName, // packageId
+		"", // mainFunctionName
+		testFunction.TestFile.Project.KurotosisYml.PackageReplaceOptions, // packageReplaceOptions
 		startosis_constants.PlaceHolderMainFileForPlaceStandAloneScript, // relativePathtoMainFile
-		string(testSuiteScript), // serializedStarlark
+		testSuiteScript, // serializedStarlark
 		startosis_constants.EmptyInputArgs, // serializedJsonParams
 		false, // nonBlockingMode 
 		enclave_structure.NewEnclaveComponents(), // enclaveComponents
@@ -187,13 +230,14 @@ func runTestSuite(testSuitePath string) error {
 		image_download_mode.ImageDownloadMode_Missing, // imageDownloadMode
 	)
 
-	if interpretationError != nil {
-		logrus.Errorf("Failed to interpret %s: %v", testSuitePath, interpretationError)
-		
-		return fmt.Errorf("failed to interpret %s: %v", testSuitePath, interpretationError)
+	testFunctionSummary := reporter.Summary()
+	if testFunctionSummary.Success() {
+		logrus.Infof("\tSUCCESS %s", testFunction)
+	} else {
+		logrus.Errorf("\tFAIL %s:\n================================================\n%v\n================================================", testFunction, testFunctionSummary.Errors())
 	}
 
-	return nil
+	return testFunctionSummary, nil
 }
 
 // Creates an enclave
@@ -214,7 +258,7 @@ func getEnclaveDBForTest() (*enclave_db.EnclaveDB, error) {
 	if err != nil {
 		logrus.Errorf("Failed to create temporary database file: %v", err)
 
-		return nil, fmt.Errorf("Failed to create temporary database file: %w", err)
+		return nil, fmt.Errorf("failed to create temporary database file: %w", err)
 	}
 
 	// Now we open the database
@@ -222,7 +266,7 @@ func getEnclaveDBForTest() (*enclave_db.EnclaveDB, error) {
 	if err != nil {
 		logrus.Errorf("Failed to open a database in %s: %v", file.Name(), err)
 
-		return nil, fmt.Errorf("Failed to open a database in %s: %w", file.Name(), err)
+		return nil, fmt.Errorf("failed to open a database in %s: %w", file.Name(), err)
 	}
 
 	enclaveDb := &enclave_db.EnclaveDB{
@@ -252,11 +296,85 @@ func setupCLI(cmd *cobra.Command, args []string) error {
 
 	logrus.SetOutput(cmd.OutOrStdout())
 	logrus.SetLevel(logLevel)
-
-	// Now we setup the filesystem
-	repositoriesDirPath = filepath.Join(tempDirStr, "repos")
-	githubAuthDirPath = filepath.Join(tempDirStr, "auth")
-	tempDirectoriesDirPath = filepath.Join(tempDirStr, "temp")
+	
 
 	return nil
+}
+
+// Setup command-specific logic
+func setupCommand(cmd *cobra.Command, args []string) error {
+	// First we resolve the temporary filesystem paths
+	repositoriesDirPath = filepath.Join(tempDirRootStr, "repos")
+	githubAuthDirPath = filepath.Join(tempDirRootStr, "auth")
+	tempDirectoriesDirPath = filepath.Join(tempDirRootStr, "temp")
+
+	// Then we create the necessary directories
+	// 
+	// The first one is the path for cloned repositories
+	err := os.MkdirAll(repositoriesDirPath, 0700)
+	if err != nil {
+		return fmt.Errorf("failed to create kurtosis repositories directory: %w", err)
+	}
+
+	// Then github credentials
+	err = os.MkdirAll(githubAuthDirPath, 0700)
+	if err != nil {
+		return fmt.Errorf("failed to create kurtosis github auth directory: %w", err)
+	}
+
+	// And finally the temporary directories
+	err = os.MkdirAll(tempDirectoriesDirPath, 0700)
+	if err != nil {
+		return fmt.Errorf("failed to create kurtosis temp directories directory: %w", err)
+	}
+
+	return nil
+}
+
+func createInterpreter(project *runner.KurtestosisProject, processBuiltins startosis_engine.StartosisInterpreterBuiltinsProcessor) (*startosis_engine.StartosisInterpreter, error) {
+	// Create test database
+	enclaveDb, err := getEnclaveDBForTest()
+	if err != nil {
+		return nil, err
+	}
+
+	// Create package content provider
+	githubAuthProvider := git_package_content_provider.NewGitHubPackageAuthProvider(githubAuthDirPath)
+	gitPackageContentProvider := git_package_content_provider.NewGitPackageContentProvider(repositoriesDirPath, tempDirectoriesDirPath, githubAuthProvider, enclaveDb)
+	wrappedPackageContentProvider := runner.NewLocalProxyPackageContentProvider(project, gitPackageContentProvider)
+
+	serviceNetwork := runner.NewMockServiceNetwork()
+	serviceNetwork.EXPECT().GetEnclaveUuid().Maybe().Return(enclave.EnclaveUUID(testEnclaveUUID))
+	serviceNetwork.EXPECT().GetApiContainerInfo().Times(1).Return(
+		service_network.NewApiContainerInfo(net.IPv4(0, 0, 0, 0), 0, "0.0.0"),
+	)
+
+	starlarkValueSerde := createStarlarkValueSerde()
+	runtimeValueStore, err := runtime_value_store.CreateRuntimeValueStore(starlarkValueSerde, enclaveDb)
+	if err != nil {
+		return nil, stacktrace.Propagate(err, "An error occurred creating the runtime value store")
+	}
+
+	interpretationTimeValueStore, err := interpretation_time_value_store.CreateInterpretationTimeValueStore(enclaveDb, starlarkValueSerde)
+	if err != nil {
+		return nil, stacktrace.Propagate(err, "an error occurred while creating the interpretation time value store")
+	}
+
+	return startosis_engine.NewStartosisInterpreterWithBuiltinsProcessor(serviceNetwork, wrappedPackageContentProvider, runtimeValueStore, starlarkValueSerde, "", interpretationTimeValueStore, processBuiltins), nil
+}
+
+func createStarlarkValueSerde() *kurtosis_types.StarlarkValueSerde {
+	starlarkThread := &starlark.Thread{
+		Name:       "starlark-serde-thread",
+		Print:      nil,
+		Load:       nil,
+		OnMaxSteps: nil,
+		Steps:      0,
+	}
+	starlarkEnv := startosis_engine.Predeclared()
+	builtins := startosis_engine.KurtosisTypeConstructors()
+	for _, builtin := range builtins {
+		starlarkEnv[builtin.Name()] = builtin
+	}
+	return kurtosis_types.NewStarlarkValueSerde(starlarkThread, starlarkEnv)
 }
