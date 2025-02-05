@@ -1,5 +1,32 @@
 # kurtestosis
 
+Test runner for `kurtosis`
+
+```python
+my_module = import_module("/my-module")
+
+def test_my_function(plan):
+    result = my_module.my_function(plan)
+
+    assert.true(result)
+```
+
+```bash
+kurtestosis ./my-kurtosis-package
+```
+
+### The `assert` module
+
+The `assert` builtin module comes from [`starlarktest` package](https://github.com/google/starlark-go/blob/master/starlarktest/assert.star) and supports several useful assertions:
+
+- `fail()`
+- `fails(fn)`
+- `eq(a, b)`
+- `ne(a, b)`
+- `lt(a, b)`
+- `contains(a, b)`
+- `true(a)`
+
 ## Getting started
 
 ### Development environment
