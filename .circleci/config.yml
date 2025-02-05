@@ -11,6 +11,9 @@ workflows:
       - go-build
       - go-lint
       - go-test
+      - cli-test:
+          requires:
+            - go-build
 
 commands:
   install-dependencies:
@@ -86,3 +89,16 @@ jobs:
       - run:
           name: Run tests
           command: just test
+
+  cli-test:
+    executor: default
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ./build
+      - run:
+          name: Run CLI (with passing tests)
+          command: ./build/cli ./test/project--passing
+      - run:
+          name: Run CLI (with failing tests)
+          command: ./build/cli ./test/project--failing && { echo "Tests should have failed"; exit 1; }
