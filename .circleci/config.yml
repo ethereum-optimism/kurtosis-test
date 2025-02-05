@@ -128,4 +128,12 @@ jobs:
           command: ./build/cli ./test/project--passing
       - run:
           name: Run CLI (with failing tests)
-          command: ./build/cli ./test/project--failing && { echo "Tests should have failed"; exit 1; }
+          command: |
+            ./build/cli ./test/project--failing || EXIT_CODE=$?
+            if [ "$EXIT_CODE" -eq 1 ]; then
+                echo "Tests failed as expected"
+                exit 0
+            else
+                echo "Tests should have failed"
+                exit 1
+            fi
