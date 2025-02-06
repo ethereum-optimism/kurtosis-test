@@ -1,20 +1,14 @@
-package runner
+package core
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
 
-	"github.com/kurtosis-tech/kurtosis/api/golang/core/lib/enclaves"
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/syntax"
 	"gopkg.in/godo.v2/glob"
 )
-
-type KurtestosisProject struct {
-	KurotosisYml *enclaves.KurtosisYaml
-	Path string
-}
 
 type TestFile struct {
 	Project *KurtestosisProject
@@ -32,33 +26,6 @@ type TestFunction struct {
 
 func (testFunction *TestFunction) String() string {
 	return fmt.Sprintf("%s:%s", testFunction.TestFile, testFunction.Name)
-}
-
-func LoadProject(projectPath string) (*KurtestosisProject, error) {
-	logrus.Debugf("Loading project from %s", projectPath)
-
-	projectPathAbsolute, projectPathAbsoluteErr := filepath.Abs(projectPath)
-	if projectPathAbsoluteErr != nil {
-		return nil, fmt.Errorf("failed to determine absolute path to project root %s: %v", projectPath, projectPathAbsoluteErr)
-	}
-
-	// At this point we need to load kurtosis.yml and see what's inside
-	// 
-	// Specifically, we'll need the package name so that we don't make up one ourselves
-	// (everything works but stacktraces might be confusing)
-	kurtosisYamlFilepath := filepath.Join(projectPathAbsolute, "kurtosis.yml")
-	kurtosisYml, kurtosisYmlErr := enclaves.ParseKurtosisYaml(kurtosisYamlFilepath)
-	if kurtosisYmlErr != nil {
-		logrus.Errorf("Failed to load kurtosis.yml from %s: %v", kurtosisYamlFilepath, kurtosisYmlErr)
-
-		return nil, fmt.Errorf("failed to load kurtosis.yml from %s: %w", kurtosisYamlFilepath, kurtosisYmlErr)
-	}
-	logrus.Debugf("Loaded kurtosis config from %s", kurtosisYamlFilepath)
-
-	return &KurtestosisProject{
-		KurotosisYml: kurtosisYml,
-		Path: projectPathAbsolute,
-	}, nil
 }
 
 func ListMatchingTestFiles(project *KurtestosisProject, testFilePattern string) ([]*TestFile, error) {

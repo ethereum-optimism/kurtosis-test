@@ -1,4 +1,4 @@
-package starlark
+package modules
 
 import (
 	_ "embed"
@@ -9,26 +9,26 @@ import (
 )
 
 var (
-	once   sync.Once
+	once        sync.Once
 	kurtestosis starlark.StringDict
 	//go:embed kurtestosis.star
 	kurtestosisFileSrc string
 	kurtestosisErr     error
-	beforeTest KurtestosisHook
-	afterTest KurtestosisHook
+	beforeTest         KurtestosisHook
+	afterTest          KurtestosisHook
 )
 
 // Type of a function that can be registered as a before/after hook
-type KurtestosisHook func (thread *starlark.Thread, builtin *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) error
+type KurtestosisHook func(thread *starlark.Thread, builtin *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) error
 
 // LoadKurtestosisModule loads the assert module.
 // It is concurrency-safe and idempotent.
 func LoadKurtestosisModule() (starlark.StringDict, error) {
 	once.Do(func() {
 		predeclared := starlark.StringDict{
-			"module":   starlark.NewBuiltin("module", starlarkstruct.MakeModule),
-			"__before_test__":    starlark.NewBuiltin("__before_test__", run_before_test),
-			"__after_test__":    starlark.NewBuiltin("__after_test__", run_after_test),
+			"module":          starlark.NewBuiltin("module", starlarkstruct.MakeModule),
+			"__before_test__": starlark.NewBuiltin("__before_test__", run_before_test),
+			"__after_test__":  starlark.NewBuiltin("__after_test__", run_after_test),
 		}
 		thread := new(starlark.Thread)
 		kurtestosis, kurtestosisErr = starlark.ExecFile(thread, "kurtestosis.star", kurtestosisFileSrc, predeclared)
@@ -38,7 +38,7 @@ func LoadKurtestosisModule() (starlark.StringDict, error) {
 }
 
 // Sets the beforeTest hook, overriding the previous value
-// 
+//
 // beforeTest hook gets executed before every kurtosis test and gets passed
 // information about the starlark thread along with context information about the starlark test
 func SetBeforeTestFunction(fn KurtestosisHook) {
@@ -46,14 +46,14 @@ func SetBeforeTestFunction(fn KurtestosisHook) {
 }
 
 // Sets the afterTest hook, overriding the previous value
-// 
+//
 // afterTest hook gets executed after every kurtosis test and gets passed
 // information about the starlark thread along with context information about the starlark test
 func SetAfterTestFunction(fn KurtestosisHook) {
 	afterTest = fn
 }
 
-func run_before_test(thread *starlark.Thread, builtin *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple)  (starlark.Value, error) {
+func run_before_test(thread *starlark.Thread, builtin *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	if beforeTest == nil {
 		return starlark.None.Truth(), nil
 	}
@@ -61,7 +61,7 @@ func run_before_test(thread *starlark.Thread, builtin *starlark.Builtin, args st
 	return starlark.None.Truth(), beforeTest(thread, builtin, args, kwargs)
 }
 
-func run_after_test(thread *starlark.Thread, builtin *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple)  (starlark.Value, error) {
+func run_after_test(thread *starlark.Thread, builtin *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	if afterTest == nil {
 		return starlark.None.Truth(), nil
 	}

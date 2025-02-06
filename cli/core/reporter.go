@@ -1,6 +1,6 @@
-package runner
+package core
 
-type StarlarktestError = []interface{}
+type TestError = []interface{}
 
 type TestSuiteSummary struct {
 	Project *KurtestosisProject
@@ -56,10 +56,10 @@ func (summary *TestFileSummary) Success() bool {
 
 type TestFunctionSummary struct {
 	TestFunction *TestFunction
-	errors []StarlarktestError
+	errors []TestError
 }
 
-func (summary *TestFunctionSummary) Errors() []StarlarktestError {
+func (summary *TestFunctionSummary) Errors() []TestError {
 	return summary.errors
 }
 
@@ -67,24 +67,24 @@ func (summary *TestFunctionSummary) Success() bool {
 	return len(summary.errors) == 0
 }
 
-type StarlarktestReporter struct {
+type TestReporter struct {
 	TestFunction *TestFunction
-	errors []StarlarktestError
+	errors []TestError
 }
 
-func (reporter *StarlarktestReporter) Error(args ...interface{}) {
+func (reporter *TestReporter) Error(args ...interface{}) {
 	reporter.errors = append(reporter.errors, args)
 }
 
-func (reporter *StarlarktestReporter) Summary() *TestFunctionSummary {
+func (reporter *TestReporter) Summary() *TestFunctionSummary {
 	return &TestFunctionSummary{
 		TestFunction: reporter.TestFunction,
 		errors: reporter.errors,
 	}
 }
 
-func NewStarlarktestReporter(testFunction *TestFunction) *StarlarktestReporter {
-	return &StarlarktestReporter{
+func NewTestReporter(testFunction *TestFunction) *TestReporter {
+	return &TestReporter{
 		TestFunction: testFunction,
 	}
 }
