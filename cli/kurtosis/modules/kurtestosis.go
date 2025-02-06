@@ -27,8 +27,8 @@ func LoadKurtestosisModule() (starlark.StringDict, error) {
 	once.Do(func() {
 		predeclared := starlark.StringDict{
 			"module":          starlark.NewBuiltin("module", starlarkstruct.MakeModule),
-			"__before_test__": starlark.NewBuiltin("__before_test__", run_before_test),
-			"__after_test__":  starlark.NewBuiltin("__after_test__", run_after_test),
+			"__before_test__": starlark.NewBuiltin("__before_test__", runBeforeTest),
+			"__after_test__":  starlark.NewBuiltin("__after_test__", runAfterTest),
 		}
 		thread := new(starlark.Thread)
 		kurtestosis, kurtestosisErr = starlark.ExecFile(thread, "kurtestosis.star", kurtestosisFileSrc, predeclared)
@@ -53,7 +53,7 @@ func SetAfterTestFunction(fn KurtestosisHook) {
 	afterTest = fn
 }
 
-func run_before_test(thread *starlark.Thread, builtin *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+func runBeforeTest(thread *starlark.Thread, builtin *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	if beforeTest == nil {
 		return starlark.None.Truth(), nil
 	}
@@ -61,7 +61,7 @@ func run_before_test(thread *starlark.Thread, builtin *starlark.Builtin, args st
 	return starlark.None.Truth(), beforeTest(thread, builtin, args, kwargs)
 }
 
-func run_after_test(thread *starlark.Thread, builtin *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+func runAfterTest(thread *starlark.Thread, builtin *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	if afterTest == nil {
 		return starlark.None.Truth(), nil
 	}
