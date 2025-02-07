@@ -10,6 +10,14 @@ lint args="$(go list -f '{{.Dir}}/...' -m | xargs)":
 lint-cli:
     just lint {{CLI_DIRECTORY}}/...
 
+# Tidy go modules in a particular workspace
+tidy workspace:
+    cd {{workspace}} && go mod tidy
+
+# Runs CLI lint only
+tidy-cli:
+    just tidy {{CLI_DIRECTORY}}
+
 # Runs go build
 # 
 # With no arguments, it will build all go workspaces
