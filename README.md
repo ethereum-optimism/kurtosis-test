@@ -15,6 +15,10 @@ def test_my_function(plan):
 kurtestosis ./my-kurtosis-package
 ```
 
+## Disclaimer
+
+> This software is in beta version, which means it is still undergoing testing and development before its official release. It may contain bugs, errors, or incomplete features that could affect its performance and functionality. By using this software, you agree to accept the risks and limitations associated with beta software. We appreciate your feedback and suggestions to help us improve this software, but we do not guarantee that we will implement them or that the software will meet your expectations. Please use this software at your own discretion and responsibility.
+
 ## Usage
 
 `kurtestosis` CLI currently only supports one command that runs the tests:
@@ -89,7 +93,7 @@ At the moment, only parts of the `ServiceConfig` struct are returned. The missin
 - `ready_conditions`
 - `image` field currently only returns the image name, not the build spec
 
-## Getting started
+## Development
 
 ### Development environment
 
