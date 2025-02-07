@@ -105,8 +105,6 @@ github.com/itchyny/gojq v0.12.13 h1:IxyYlHYIlspQHHTE0f3cJF0NKDMfajxViuhBLnHd/QU=
 github.com/itchyny/gojq v0.12.13/go.mod h1:JzwzAqenfhrPUuwbmEz3nu3JQmFLlQTQMUcOdnu/Sf4=
 github.com/itchyny/timefmt-go v0.1.5 h1:G0INE2la8S6ru/ZI5JecgyzbbJNs5lG1RcBqa7Jm6GE=
 github.com/itchyny/timefmt-go v0.1.5/go.mod h1:nEP7L+2YmAbT2kZ2HfSs1d8Xtw9LY8D2stDBckWakZ8=
-github.com/janjakubnanista/kurtosis/core/server v0.0.0-20250201003529-be5c0231436c h1:8houZBD27upT5B/9oTQDUeuaNLyr/S3qEl2tLeiCPRY=
-github.com/janjakubnanista/kurtosis/core/server v0.0.0-20250201003529-be5c0231436c/go.mod h1:uUrCtsf71DXe3jq36FLRmn2opeaNMrWOMe20jkU1TDU=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99/go.mod h1:1lJo3i6rXxKeerYnT8Nvf0QmHCRC1n8sfWVwXF2Frvo=
 github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
@@ -132,6 +130,8 @@ github.com/kurtosis-tech/kurtosis/container-engine-lib v0.0.0-20250116034716-84e
 github.com/kurtosis-tech/kurtosis/container-engine-lib v0.0.0-20250116034716-84e2fe2b35f5/go.mod h1:mCItsG0xoTO4J8cx4jPtFxE9fOm3Bb8cKzuROay0vAs=
 github.com/kurtosis-tech/kurtosis/core/files_artifacts_expander v0.0.0-20250116034716-84e2fe2b35f5 h1:DaiILFLuiJiWHedwHqyY1msBexM8Y68Q3WYEr1Zd5/k=
 github.com/kurtosis-tech/kurtosis/core/files_artifacts_expander v0.0.0-20250116034716-84e2fe2b35f5/go.mod h1:5ZQ0YiV9r80niBzYFGkVaoc8v8EmEkqABdqirntWOPc=
+github.com/kurtosis-tech/kurtosis/core/server v0.0.0-20250207172555-bb508ca59fe8 h1:R8iSN93jt1a7GFO1meaSWi6xwW4ow1tUrLK2cOkH8Fw=
+github.com/kurtosis-tech/kurtosis/core/server v0.0.0-20250207172555-bb508ca59fe8/go.mod h1:uUrCtsf71DXe3jq36FLRmn2opeaNMrWOMe20jkU1TDU=
 github.com/kurtosis-tech/kurtosis/grpc-file-transfer/golang v0.0.0-20250116034716-84e2fe2b35f5 h1:9KUrLCKzis6KWRPp/sypjJJ5/w7euKjBvf2OKsWyfT4=
 github.com/kurtosis-tech/kurtosis/grpc-file-transfer/golang v0.0.0-20250116034716-84e2fe2b35f5/go.mod h1:xiv0Gc3MWaG43dPC70lTIuoLqhD6MgopEXHoj7cbMNU=
 github.com/kurtosis-tech/kurtosis/name_generator v0.0.0-20250116034716-84e2fe2b35f5 h1:J7qV3+YYZbfcjJaEEkORzG6U3bUcQwU+4y72lto440s=
