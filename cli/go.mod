@@ -6,7 +6,7 @@ require (
 	github.com/kurtosis-tech/kurtosis/api/golang v0.84.10
 	github.com/kurtosis-tech/kurtosis/container-engine-lib v0.0.0
 	github.com/kurtosis-tech/kurtosis/core/files_artifacts_expander v0.0.0 // indirect
-	github.com/kurtosis-tech/kurtosis/core/server v0.0.0-20250116034716-84e2fe2b35f5
+	github.com/kurtosis-tech/kurtosis/core/server v0.0.0-20250207172555-bb508ca59fe8
 	github.com/kurtosis-tech/kurtosis/name_generator v0.0.0 // indirect
 	github.com/kurtosis-tech/kurtosis/path-compression v0.0.0-20250116034716-84e2fe2b35f5 // indirect
 	github.com/kurtosis-tech/stacktrace v0.0.0-20211028211901-1c67a77b5409 // indirect
@@ -116,6 +116,3 @@ replace github.com/kurtosis-tech/kurtosis/name_generator v0.0.0 => github.com/ku
 replace github.com/kurtosis-tech/kurtosis/metrics-library/golang v0.0.0 => github.com/kurtosis-tech/kurtosis/metrics-library/golang v0.0.0-20250116034716-84e2fe2b35f5
 
 replace github.com/kurtosis-tech/kurtosis/api/golang v0.84.10 => github.com/kurtosis-tech/kurtosis/api/golang v1.4.3
-
-// Temporary until https://github.com/kurtosis-tech/kurtosis/pull/2642 is merged
-replace github.com/kurtosis-tech/kurtosis/core/server v0.0.0-20250116034716-84e2fe2b35f5 => github.com/janjakubnanista/kurtosis/core/server v0.0.0-20250201003529-be5c0231436c
