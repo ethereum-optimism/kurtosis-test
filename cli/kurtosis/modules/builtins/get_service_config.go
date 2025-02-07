@@ -186,7 +186,10 @@ func portSpecMapToStarlarkDict(serviceName string, input map[string]*port_spec.P
 			return nil, err
 		}
 
-		dict.SetKey(starlark.String(k), mapped.Struct)
+		setErr := dict.SetKey(starlark.String(k), mapped.Struct)
+		if setErr != nil {
+			return nil, startosis_errors.WrapWithInterpretationError(err, "failed to set key")
+		}
 	}
 
 	return dict, nil
