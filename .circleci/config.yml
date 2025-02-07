@@ -91,6 +91,11 @@ jobs:
       - install-dependencies
       - install-go-modules
       - run:
+          name: Check go.mod
+          command: |
+            just tidy cli
+            git diff --exit-code
+      - run:
           name: Run lint
           command: just lint
   
