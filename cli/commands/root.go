@@ -206,7 +206,7 @@ func runTestFunction(testFunction *core.TestFunction) (*core.TestFunctionSummary
 	}
 
 	// We load all the kurtestosis-specific predeclared starlark builtins
-	predeclared, err := kurtosis.LoadKurtestosisPredeclared()
+	predeclared, err := kurtosis.LoadKurtestosisPredeclared(interpretationTimeValueStore)
 	if err != nil {
 		return nil, err
 	}
@@ -259,7 +259,7 @@ func runTestFunction(testFunction *core.TestFunction) (*core.TestFunctionSummary
 	testFunctionSummary := reporter.Summary()
 
 	if interpretationErr != nil {
-		logrus.Errorf("\tFAIL %s:\n================================================\n%v\n================================================", testFunction, testFunctionSummary.Errors())
+		logrus.Errorf("\tFAIL %s:\n================================================\n%v\n================================================", testFunction, interpretationErr)
 	} else {
 		if testFunctionSummary.Success() {
 			logrus.Infof("\tSUCCESS %s", testFunction)

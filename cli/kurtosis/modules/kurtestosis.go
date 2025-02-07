@@ -2,8 +2,10 @@ package modules
 
 import (
 	_ "embed"
+	"kurtestosis/cli/kurtosis/modules/builtins"
 	"sync"
 
+	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/interpretation_time_value_store"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 )
@@ -21,20 +23,17 @@ var (
 // Type of a function that can be registered as a before/after hook
 type KurtestosisHook func(thread *starlark.Thread, builtin *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) error
 
-// LoadKurtestosisModule loads the assert module.
-// It is concurrency-safe and idempotent.
-func LoadKurtestosisModule() (starlark.StringDict, error) {
-	once.Do(func() {
-		predeclared := starlark.StringDict{
-			"module":          starlark.NewBuiltin("module", starlarkstruct.MakeModule),
-			"__before_test__": starlark.NewBuiltin("__before_test__", runBeforeTest),
-			"__after_test__":  starlark.NewBuiltin("__after_test__", runAfterTest),
-		}
-		thread := new(starlark.Thread)
-		kurtestosis, kurtestosisErr = starlark.ExecFile(thread, "kurtestosis.star", kurtestosisFileSrc, predeclared)
-	})
+// LoadKurtestosisModule loads the kurtestosis module.
+func LoadKurtestosisModule(interpretationTimeValueStore *interpretation_time_value_store.InterpretationTimeValueStore) (starlark.StringDict, error) {
+	predeclared := starlark.StringDict{
+		"module":                             starlark.NewBuiltin("module", starlarkstruct.MakeModule),
+		"__before_test__":                    starlark.NewBuiltin("__before_test__", runBeforeTest),
+		"__after_test__":                     starlark.NewBuiltin("__after_test__", runAfterTest),
+		builtins.GetServiceConfigBuiltinName: starlark.NewBuiltin(builtins.GetServiceConfigBuiltinName, builtins.NewGetServiceConfig(interpretationTimeValueStore).CreateBuiltin()),
+	}
+	thread := new(starlark.Thread)
 
-	return kurtestosis, kurtestosisErr
+	return starlark.ExecFile(thread, "kurtestosis.star", kurtestosisFileSrc, predeclared)
 }
 
 // Sets the beforeTest hook, overriding the previous value

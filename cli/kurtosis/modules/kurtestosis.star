@@ -22,4 +22,6 @@ def test(plan, mod, fn_name):
 kurtestosis = module(
     "kurtestosis",
     test = test,
+    # get_service_config is defined as a global builtin included when this file is processed
+    get_service_config = get_service_config,
 )
