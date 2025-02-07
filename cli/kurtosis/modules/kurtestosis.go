@@ -3,7 +3,6 @@ package modules
 import (
 	_ "embed"
 	"kurtestosis/cli/kurtosis/modules/builtins"
-	"sync"
 
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/interpretation_time_value_store"
 	"go.starlark.net/starlark"
@@ -11,11 +10,8 @@ import (
 )
 
 var (
-	once        sync.Once
-	kurtestosis starlark.StringDict
 	//go:embed kurtestosis.star
 	kurtestosisFileSrc string
-	kurtestosisErr     error
 	beforeTest         KurtestosisHook
 	afterTest          KurtestosisHook
 )
