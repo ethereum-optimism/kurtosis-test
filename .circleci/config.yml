@@ -115,10 +115,9 @@ jobs:
       - checkout
       - install-dependencies
       - install-go-modules
-      # FIXME GITHUB_TOKEN for goreleaser
       - run:
           name: Release CLI
-          command: just release-cli
+          command: GITHUB_TOKEN=$GITHUB_TOKEN_GOVERNANCE just release-cli
 
 
   cli-test:
