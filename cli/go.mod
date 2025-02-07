@@ -9,13 +9,12 @@ require (
 	github.com/kurtosis-tech/kurtosis/core/server v0.0.0-20250116034716-84e2fe2b35f5
 	github.com/kurtosis-tech/kurtosis/name_generator v0.0.0 // indirect
 	github.com/kurtosis-tech/kurtosis/path-compression v0.0.0-20250116034716-84e2fe2b35f5 // indirect
-	github.com/kurtosis-tech/stacktrace v0.0.0-20211028211901-1c67a77b5409
+	github.com/kurtosis-tech/stacktrace v0.0.0-20211028211901-1c67a77b5409 // indirect
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.1
 )
 
 require (
-	github.com/stretchr/testify v1.8.4
 	go.etcd.io/bbolt v1.3.7
 	go.starlark.net v0.0.0-20230224151120-c52844e64a10
 	gopkg.in/godo.v2 v2.0.9
@@ -73,6 +72,7 @@ require (
 	github.com/skeema/knownhosts v1.2.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
+	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/ulikunitz/xz v0.5.11 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
