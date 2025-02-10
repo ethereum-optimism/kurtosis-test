@@ -8,3 +8,7 @@ def test_assert_eq(plan):
 
 def test_assert_fails(plan):
     assert.fails(lambda : 0, "this did not fail")
+
+def test_multiple_asserts(plan):
+    assert.true(False)
+    assert.true(not True)
