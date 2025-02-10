@@ -64,7 +64,7 @@ func init() {
 		&logLevelStr,
 		logLevelStrFlag,
 		logrus.InfoLevel.String(),
-		"Sets the level that the CLI will log at ("+strings.Join(getAllLogLevelStrings(), "|")+")",
+		"Sets the level that the CLI will log at ("+strings.Join(core.ToStringList(logrus.AllLevels), "|")+")",
 	)
 
 	RootCmd.Flags().StringVar(
@@ -264,21 +264,11 @@ func runTestFunction(testFunction *core.TestFunction) (*core.TestFunctionSummary
 		if testFunctionSummary.Success() {
 			logrus.Infof("\tSUCCESS %s", testFunction)
 		} else {
-			logrus.Errorf("\tFAIL %s:\n================================================\n%v\n================================================", testFunction, testFunctionSummary.Errors())
+			logrus.Errorf("\tFAIL %s:\n================================================\n%v\n================================================", testFunction, strings.Join(core.ToStringList(testFunctionSummary.Errors()), "\n"))
 		}
 	}
 
 	return testFunctionSummary, nil
-}
-
-// Concatenates all logrus log level strings into a string array
-func getAllLogLevelStrings() []string {
-	result := []string{}
-	for _, level := range logrus.AllLevels {
-		levelStr := level.String()
-		result = append(result, levelStr)
-	}
-	return result
 }
 
 // Setup function to run before any command execution
