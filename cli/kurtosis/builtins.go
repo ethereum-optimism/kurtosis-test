@@ -18,12 +18,17 @@ func LoadKurtestosisPredeclared(interpretationTimeValueStore *interpretation_tim
 		return nil, fmt.Errorf("failed to load assert module: %v", err)
 	}
 
+	// since assert is a reserved keyword in kurtosis, we provide an alias for it
+	expectPredeclared := map[string]starlark.Value{
+		"expect": assertPredeclared["assert"],
+	}
+
 	kurtestosisPredeclared, err := modules.LoadKurtestosisModule(interpretationTimeValueStore)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load assert kurtestosis: %v", err)
 	}
 
-	return MergeDicts(assertPredeclared, kurtestosisPredeclared), nil
+	return MergeDicts(assertPredeclared, expectPredeclared, kurtestosisPredeclared), nil
 }
 
 func CreateProcessBuiltins(extraPredeclared starlark.StringDict) startosis_engine.StartosisInterpreterBuiltinsProcessor {

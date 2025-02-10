@@ -62,6 +62,18 @@ The `assert` builtin module comes from [`starlarktest` package](https://github.c
 - `contains(a, b)`
 - `true(a)`
 
+### The `expect` module
+
+Since `assert` is a reserved keyword in kurtosis, `expect` builtin is added as an alias for `assert`. The following two tests are identical:
+
+```python
+def test_with_assert(plan):
+    assert.true(True)
+
+def test_with_exoect(plan):
+    expect.true(True)
+```
+
 ### The `kurtestosis` module
 
 The `kurtestosis` builtin module comes from [this repository](/cli/kurtosis/modules/kurtestosis.star). It contains functionality
