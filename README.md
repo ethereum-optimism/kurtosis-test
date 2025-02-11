@@ -105,6 +105,16 @@ At the moment, only parts of the `ServiceConfig` struct are returned. The missin
 - `ready_conditions`
 - `image` field currently only returns the image name, not the build spec
 
+#### `kurtestosis.debug(value)`
+
+An equivalent of `print` in pure starlark, useful for debugging `kurtestosis` tests.
+
+```python
+def test_get_service_config(plan):
+    kurtestosis.debug("some value")
+    kurtestosis.debug(value = "some value")
+```
+
 ## Development
 
 ### Development environment
