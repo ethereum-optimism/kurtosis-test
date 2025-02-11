@@ -253,19 +253,20 @@ func runTestFunction(testFunction *core.TestFunction) (*core.TestFunctionSummary
 		image_download_mode.ImageDownloadMode_Missing, // imageDownloadMode
 	)
 
+	// We add any interpretation errors to the summary
+	if interpretationErr != nil {
+		reporter.Error(interpretationErr)
+	}
+
 	// FIXME The reporter should be doing all the lifting when it comes to logging and formatting
 	// the test output, at the moment it's kinda ready for that but not utitlized at all
 
 	testFunctionSummary := reporter.Summary()
 
-	if interpretationErr != nil {
-		logrus.Errorf("\tFAIL %s:\n================================================\n%v\n================================================", testFunction, interpretationErr)
+	if testFunctionSummary.Success() {
+		logrus.Infof("\tSUCCESS %s", testFunction)
 	} else {
-		if testFunctionSummary.Success() {
-			logrus.Infof("\tSUCCESS %s", testFunction)
-		} else {
-			logrus.Errorf("\tFAIL %s:\n================================================\n%v\n================================================", testFunction, strings.Join(core.ToStringList(testFunctionSummary.Errors()), "\n"))
-		}
+		logrus.Errorf("\tFAIL %s:\n================================================\n%v\n================================================", testFunction, strings.Join(core.ToStringList(testFunctionSummary.Errors()), "\n"))
 	}
 
 	return testFunctionSummary, nil
