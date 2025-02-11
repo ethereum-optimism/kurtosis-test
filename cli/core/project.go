@@ -8,12 +8,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type KurtestosisProject struct {
+type KurtosisTestProject struct {
 	KurotosisYml *enclaves.KurtosisYaml
-	Path string
+	Path         string
 }
 
-func LoadKurtestosisProject(projectPath string) (*KurtestosisProject, error) {
+func LoadKurtosisTestProject(projectPath string) (*KurtosisTestProject, error) {
 	logrus.Debugf("Loading project from %s", projectPath)
 
 	projectPathAbsolute, projectPathAbsoluteErr := filepath.Abs(projectPath)
@@ -22,7 +22,7 @@ func LoadKurtestosisProject(projectPath string) (*KurtestosisProject, error) {
 	}
 
 	// At this point we need to load kurtosis.yml and see what's inside
-	// 
+	//
 	// Specifically, we'll need the package name so that we don't make up one ourselves
 	// (everything works but stacktraces might be confusing)
 	kurtosisYamlFilepath := filepath.Join(projectPathAbsolute, "kurtosis.yml")
@@ -34,8 +34,8 @@ func LoadKurtestosisProject(projectPath string) (*KurtestosisProject, error) {
 	}
 	logrus.Debugf("Loaded kurtosis config from %s", kurtosisYamlFilepath)
 
-	return &KurtestosisProject{
+	return &KurtosisTestProject{
 		KurotosisYml: kurtosisYml,
-		Path: projectPathAbsolute,
+		Path:         projectPathAbsolute,
 	}, nil
 }

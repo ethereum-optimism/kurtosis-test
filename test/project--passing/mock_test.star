@@ -2,12 +2,12 @@ mock_test_module = import_module("./mock_test_module.star")
 
 def test_original(plan):
     mocked_method = plan.run_sh
-    mock_run_sh = kurtestosis.mock(plan, "run_sh")
+    mock_run_sh = kurtosistestmock(plan, "run_sh")
 
     assert.eq(mock_run_sh.original, mocked_method)
 
 def test_simple(plan):
-    mock_run_sh = kurtestosis.mock(plan, "run_sh")
+    mock_run_sh = kurtosistestmock(plan, "run_sh")
 
     return_value = plan.run_sh(run = "ls")
     
@@ -17,7 +17,7 @@ def test_simple(plan):
     ])
 
 def test_mock_return_value(plan):
-    mock_run_sh = kurtestosis.mock(plan, "run_sh")
+    mock_run_sh = kurtosistestmock(plan, "run_sh")
 
     mock_run_sh.mock_return_value(42)
     assert.eq(plan.run_sh(run = "pwd"), 42)
@@ -50,7 +50,7 @@ def test_mock_return_value_resets_after_test(plan):
     assert.ne(return_value, 43)
 
 def test_mock_non_builtin(plan):
-    mock_module_function = kurtestosis.mock(mock_test_module, "module_function").mock_return_value(16)
+    mock_module_function = kurtosistestmock(mock_test_module, "module_function").mock_return_value(16)
     return_value = mock_test_module.module_function()
     calls = mock_module_function.calls()
 
@@ -60,13 +60,13 @@ def test_mock_non_builtin(plan):
     ])
 
 def test_mock_non_existing(plan):
-    assert.fails(lambda: kurtestosis.mock(mock_test_module, "non_existing_function"), "doesn't have a property called non_existing_function")
+    assert.fails(lambda: kurtosistestmock(mock_test_module, "non_existing_function"), "doesn't have a property called non_existing_function")
 
 def test_mock_non_function(plan):
-    assert.fails(lambda: kurtestosis.mock(mock_test_module, "module_constant"), "is not a function, it's {0}".format(mock_test_module.module_constant))
+    assert.fails(lambda: kurtosistestmock(mock_test_module, "module_constant"), "is not a function, it's {0}".format(mock_test_module.module_constant))
 
 def test_mock_non_module(plan):
     target = struct()
-    assert.fails(lambda: kurtestosis.mock(target, "something"), "mock: only module mocks are possible at the moment. struct\\(\\) is not a module")
+    assert.fails(lambda: kurtosistestmock(target, "something"), "mock: only module mocks are possible at the moment. struct\\(\\) is not a module")
 
 

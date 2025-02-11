@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"kurtestosis/cli/commands"
+	"kurtosis-test/cli/commands"
 
 	"github.com/sirupsen/logrus"
 )
@@ -35,7 +35,7 @@ func main() {
 	err := commands.RootCmd.Execute()
 	if err != nil {
 		logrus.Errorf("%v", err)
-		
+
 		os.Exit(1)
 	}
 }

@@ -20,8 +20,8 @@
 # env file
 .env
 
-# Kurtestosis temporary files
-.kurtestosis
+# kurtosis-test temporary files
+.kurtosis-test
 
 # Build artifacts
 /build

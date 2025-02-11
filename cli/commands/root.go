@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"kurtestosis/cli/core"
-	"kurtestosis/cli/kurtosis"
-	"kurtestosis/cli/kurtosis/backend"
+	"kurtosis-test/cli/core"
+	"kurtosis-test/cli/kurtosis"
+	"kurtosis-test/cli/kurtosis/backend"
 
 	"github.com/kurtosis-tech/kurtosis/container-engine-lib/lib/backend_interface/objects/image_download_mode"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/enclave_structure"
@@ -44,8 +44,8 @@ var (
 // RootCmd Suppressing exhaustruct requirement because this struct has ~40 properties
 // nolint: exhaustruct
 var RootCmd = &cobra.Command{
-	Use:   KurtestosisCmdStr,
-	Short: "Kurtestosis, Kurtosis test runner CLI",
+	Use:   KurtosisTestCmdStr,
+	Short: "Kurtosis test runner CLI",
 	// Cobra will print usage whenever _any_ error occurs, including ones we throw in Kurtosis
 	// This doesn't make sense in 99% of the cases, so just turn them off entirely
 	SilenceUsage: true,
@@ -70,31 +70,31 @@ func init() {
 	RootCmd.Flags().StringVar(
 		&tempDirRootStr,
 		tempDirRootStrFlag,
-		KurtestosisDefaultTempDirRoot,
+		KurtosisTestDefaultTempDirRoot,
 		"Directory for kurtosis temporary files",
 	)
 
 	RootCmd.Flags().StringVar(
 		&testFilePatternStr,
 		testFilePatternStrFlag,
-		KurtestosisDefaultTestFilePattern,
+		KurtosisTestDefaultTestFilePattern,
 		"Glob expression to use when looking for starlark test files",
 	)
 
 	RootCmd.Flags().StringVar(
 		&testPatternStr,
 		testPatternStrFlag,
-		KurtestosisDefaultTestFunctionPattern,
+		KurtosisTestDefaultTestFunctionPattern,
 		"Glob expression to use when looking for test functions",
 	)
 }
 
 func run(cmd *cobra.Command, args []string) error {
-	logrus.Warn("kurtestosis CLI is still work in progress")
+	logrus.Warn("kurtosis-test CLI is still work in progress")
 
 	// First we load the project
 	projectPath := args[0]
-	project, projectErr := core.LoadKurtestosisProject(args[0])
+	project, projectErr := core.LoadKurtosisTestProject(args[0])
 	if projectErr != nil {
 		logrus.Errorf("Failed to load project from %s: %v", projectPath, projectErr)
 
@@ -203,8 +203,8 @@ func runTestFunction(testFunction *core.TestFunction) (*core.TestFunctionSummary
 		return nil, fmt.Errorf("failed to create kurtosis value stores: %w", err)
 	}
 
-	// We load all the kurtestosis-specific predeclared starlark builtins
-	predeclared, err := kurtosis.LoadKurtestosisPredeclared(interpretationTimeValueStore)
+	// We load all the kurtosis-test-specific predeclared starlark builtins
+	predeclared, err := kurtosis.LoadKurtosisTestPredeclared(interpretationTimeValueStore)
 	if err != nil {
 		return nil, err
 	}
@@ -217,10 +217,10 @@ func runTestFunction(testFunction *core.TestFunction) (*core.TestFunctionSummary
 	// Besides collecting and formatting the test output (mostly TBD),
 	// a reporter is required for correct functioning of the starlarktest assert module
 	reporter := core.NewTestReporter(testFunction)
-	kurtosis.SetupKurtestosisPredeclared(reporter)
+	kurtosis.SetupKurtosisTestPredeclared(reporter)
 
 	// Service network (99% mock)
-	serviceNetwork := backend.CreateKurtestosisServiceNetwork()
+	serviceNetwork := backend.CreateKurtosisTestServiceNetwork()
 
 	// And finally an interpreter
 	interpreter, err := backend.CreateInterpreter(

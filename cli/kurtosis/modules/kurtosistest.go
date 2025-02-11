@@ -2,7 +2,7 @@ package modules
 
 import (
 	_ "embed"
-	"kurtestosis/cli/kurtosis/modules/builtins"
+	"kurtosis-test/cli/kurtosis/modules/builtins"
 
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/interpretation_time_value_store"
 	"go.starlark.net/starlark"
@@ -10,17 +10,17 @@ import (
 )
 
 var (
-	//go:embed kurtestosis.star
-	kurtestosisFileSrc string
-	beforeTest         KurtestosisHook
-	afterTest          KurtestosisHook
+	//go:embed kurtosistest.star
+	kurtosistestFileSrc string
+	beforeTest          KurtosisTestHook
+	afterTest           KurtosisTestHook
 )
 
 // Type of a function that can be registered as a before/after hook
-type KurtestosisHook func(thread *starlark.Thread, builtin *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) error
+type KurtosisTestHook func(thread *starlark.Thread, builtin *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) error
 
-// LoadKurtestosisModule loads the kurtestosis module.
-func LoadKurtestosisModule(interpretationTimeValueStore *interpretation_time_value_store.InterpretationTimeValueStore) (starlark.StringDict, error) {
+// LoadKurtosisTestModule loads the kurtosis-test module.
+func LoadKurtosisTestModule(interpretationTimeValueStore *interpretation_time_value_store.InterpretationTimeValueStore) (starlark.StringDict, error) {
 	predeclared := starlark.StringDict{
 		"module":                             starlark.NewBuiltin("module", starlarkstruct.MakeModule),
 		"__before_test__":                    starlark.NewBuiltin("__before_test__", runBeforeTest),
@@ -31,14 +31,14 @@ func LoadKurtestosisModule(interpretationTimeValueStore *interpretation_time_val
 	}
 	thread := new(starlark.Thread)
 
-	return starlark.ExecFile(thread, "kurtestosis.star", kurtestosisFileSrc, predeclared)
+	return starlark.ExecFile(thread, "kurtosistest.star", kurtosistestFileSrc, predeclared)
 }
 
 // Sets the beforeTest hook, overriding the previous value
 //
 // beforeTest hook gets executed before every kurtosis test and gets passed
 // information about the starlark thread along with context information about the starlark test
-func SetBeforeTestFunction(fn KurtestosisHook) {
+func SetBeforeTestFunction(fn KurtosisTestHook) {
 	beforeTest = fn
 }
 
@@ -46,7 +46,7 @@ func SetBeforeTestFunction(fn KurtestosisHook) {
 //
 // afterTest hook gets executed after every kurtosis test and gets passed
 // information about the starlark thread along with context information about the starlark test
-func SetAfterTestFunction(fn KurtestosisHook) {
+func SetAfterTestFunction(fn KurtosisTestHook) {
 	afterTest = fn
 }
 

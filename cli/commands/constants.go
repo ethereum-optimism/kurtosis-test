@@ -5,12 +5,12 @@ import (
 	"path"
 )
 
-var KurtestosisCmdStr = path.Base(os.Args[0])
+var KurtosisTestCmdStr = path.Base(os.Args[0])
 
 const (
-	KurtestosisDefaultTempDirRoot = ".kurtestosis"
+	KurtosisTestDefaultTempDirRoot = ".kurtosis-test"
 
-	KurtestosisDefaultTestFilePattern = "**/*_{test,spec}.star"
-	
-	KurtestosisDefaultTestFunctionPattern = "test_*"
+	KurtosisTestDefaultTestFilePattern = "**/*_{test,spec}.star"
+
+	KurtosisTestDefaultTestFunctionPattern = "test_*"
 )

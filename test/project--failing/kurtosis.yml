@@ -1,6 +1,6 @@
-name: github.com/kurtestosis/project--failing
+name: github.com/kurtosis-test/project--failing
 description: |
-  # Kurtestosis SUT
+  # KurtosisTest SUT
   This is a dummy Kurtosis package for the purpose of testing
 
   The tests here should fail

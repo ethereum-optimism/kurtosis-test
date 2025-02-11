@@ -1,4 +1,4 @@
-module kurtestosis/cli
+module kurtosis-test/cli
 
 go 1.21.13
 

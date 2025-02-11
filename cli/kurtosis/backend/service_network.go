@@ -17,23 +17,23 @@ import (
 )
 
 const (
-	enclaveUUID = "kurtestosis-enclave"
+	enclaveUUID = "kurtosis-test-enclave"
 )
 
 var (
 	apiContainerInfo = service_network.NewApiContainerInfo(net.IPv4(0, 0, 0, 0), 0, "0.0.0")
 
-	// Make sure KurtestosisServiceNetwork implements service_network.ServiceNetwork
-	_ service_network.ServiceNetwork = (*KurtestosisServiceNetwork)(nil) 
+	// Make sure KurtosisTestServiceNetwork implements service_network.ServiceNetwork
+	_ service_network.ServiceNetwork = (*KurtosisTestServiceNetwork)(nil)
 )
 
-type KurtestosisServiceNetwork struct {}
+type KurtosisTestServiceNetwork struct{}
 
-func CreateKurtestosisServiceNetwork() *KurtestosisServiceNetwork {
-	return &KurtestosisServiceNetwork{}
+func CreateKurtosisTestServiceNetwork() *KurtosisTestServiceNetwork {
+	return &KurtosisTestServiceNetwork{}
 }
 
-func (network *KurtestosisServiceNetwork) AddService(
+func (network *KurtosisTestServiceNetwork) AddService(
 	ctx context.Context,
 	serviceName service.ServiceName,
 	serviceConfig *service.ServiceConfig,
@@ -44,7 +44,7 @@ func (network *KurtestosisServiceNetwork) AddService(
 	return nil, unimplemented("AddService")
 }
 
-func (network *KurtestosisServiceNetwork) AddServices(
+func (network *KurtosisTestServiceNetwork) AddServices(
 	ctx context.Context,
 	serviceConfigs map[service.ServiceName]*service.ServiceConfig,
 	batchSize int,
@@ -56,7 +56,7 @@ func (network *KurtestosisServiceNetwork) AddServices(
 	return nil, nil, unimplemented("AddServices")
 }
 
-func (network *KurtestosisServiceNetwork) UpdateService(
+func (network *KurtosisTestServiceNetwork) UpdateService(
 	ctx context.Context,
 	serviceName service.ServiceName,
 	updateServiceConfig *service.ServiceConfig,
@@ -67,123 +67,123 @@ func (network *KurtestosisServiceNetwork) UpdateService(
 	return nil, unimplemented("AddServices")
 }
 
-func (network *KurtestosisServiceNetwork) UpdateServices(
-    ctx context.Context,
-    updateServiceConfigs map[service.ServiceName]*service.ServiceConfig,
-    batchSize int,
+func (network *KurtosisTestServiceNetwork) UpdateServices(
+	ctx context.Context,
+	updateServiceConfigs map[service.ServiceName]*service.ServiceConfig,
+	batchSize int,
 ) (
-    map[service.ServiceName]*service.Service,
-    map[service.ServiceName]error,
-    error,
+	map[service.ServiceName]*service.Service,
+	map[service.ServiceName]error,
+	error,
 ) {
-    return nil, nil, unimplemented("UpdateServices")
+	return nil, nil, unimplemented("UpdateServices")
 }
 
-func (network *KurtestosisServiceNetwork) RemoveService(ctx context.Context, serviceIdentifier string) (service.ServiceUUID, error) {
-    return "", unimplemented("RemoveService")
+func (network *KurtosisTestServiceNetwork) RemoveService(ctx context.Context, serviceIdentifier string) (service.ServiceUUID, error) {
+	return "", unimplemented("RemoveService")
 }
 
-func (network *KurtestosisServiceNetwork) StartService(ctx context.Context, serviceIdentifier string) error {
-    return unimplemented("StartService")
+func (network *KurtosisTestServiceNetwork) StartService(ctx context.Context, serviceIdentifier string) error {
+	return unimplemented("StartService")
 }
 
-func (network *KurtestosisServiceNetwork) StartServices(
-    ctx context.Context,
-    serviceIdentifiers []string,
+func (network *KurtosisTestServiceNetwork) StartServices(
+	ctx context.Context,
+	serviceIdentifiers []string,
 ) (
-    map[service.ServiceUUID]bool,
-    map[service.ServiceUUID]error,
-    error,
+	map[service.ServiceUUID]bool,
+	map[service.ServiceUUID]error,
+	error,
 ) {
-    return nil, nil, unimplemented("StartServices")
+	return nil, nil, unimplemented("StartServices")
 }
 
-func (network *KurtestosisServiceNetwork) StopService(ctx context.Context, serviceIdentifier string) error {
-    return unimplemented("StopService")
+func (network *KurtosisTestServiceNetwork) StopService(ctx context.Context, serviceIdentifier string) error {
+	return unimplemented("StopService")
 }
 
-func (network *KurtestosisServiceNetwork) StopServices(
-    ctx context.Context,
-    serviceIdentifiers []string,
+func (network *KurtosisTestServiceNetwork) StopServices(
+	ctx context.Context,
+	serviceIdentifiers []string,
 ) (
-    map[service.ServiceUUID]bool,
-    map[service.ServiceUUID]error,
-    error,
+	map[service.ServiceUUID]bool,
+	map[service.ServiceUUID]error,
+	error,
 ) {
-    return nil, nil, unimplemented("StopServices")
+	return nil, nil, unimplemented("StopServices")
 }
 
-func (network *KurtestosisServiceNetwork) RunExec(ctx context.Context, serviceIdentifier string, userServiceCommand []string) (*exec_result.ExecResult, error) {
-    return nil, unimplemented("RunExec")
+func (network *KurtosisTestServiceNetwork) RunExec(ctx context.Context, serviceIdentifier string, userServiceCommand []string) (*exec_result.ExecResult, error) {
+	return nil, unimplemented("RunExec")
 }
 
-func (network *KurtestosisServiceNetwork) RunExecs(
-    ctx context.Context,
-    userServiceCommands map[string][]string,
+func (network *KurtosisTestServiceNetwork) RunExecs(
+	ctx context.Context,
+	userServiceCommands map[string][]string,
 ) (
-    map[service.ServiceUUID]*exec_result.ExecResult,
-    map[service.ServiceUUID]error,
-    error,
+	map[service.ServiceUUID]*exec_result.ExecResult,
+	map[service.ServiceUUID]error,
+	error,
 ) {
-    return nil, nil, unimplemented("RunExecs")
+	return nil, nil, unimplemented("RunExecs")
 }
 
-func (network *KurtestosisServiceNetwork) HttpRequestService(ctx context.Context, serviceIdentifier string, portId string, method string, contentType string, endpoint string, body string, headers map[string]string) (*http.Response, error) {
-    return nil, unimplemented("HttpRequestService")
+func (network *KurtosisTestServiceNetwork) HttpRequestService(ctx context.Context, serviceIdentifier string, portId string, method string, contentType string, endpoint string, body string, headers map[string]string) (*http.Response, error) {
+	return nil, unimplemented("HttpRequestService")
 }
 
-func (network *KurtestosisServiceNetwork) GetService(ctx context.Context, serviceIdentifier string) (*service.Service, error) {
-    return nil, unimplemented("GetService")
+func (network *KurtosisTestServiceNetwork) GetService(ctx context.Context, serviceIdentifier string) (*service.Service, error) {
+	return nil, unimplemented("GetService")
 }
 
-func (network *KurtestosisServiceNetwork) GetServices(ctx context.Context) (map[service.ServiceUUID]*service.Service, error) {
-    return nil, unimplemented("GetServices")
+func (network *KurtosisTestServiceNetwork) GetServices(ctx context.Context) (map[service.ServiceUUID]*service.Service, error) {
+	return nil, unimplemented("GetServices")
 }
 
-func (network *KurtestosisServiceNetwork) CopyFilesFromService(ctx context.Context, serviceIdentifier string, srcPath string, artifactName string) (enclave_data_directory.FilesArtifactUUID, error) {
-    return "", unimplemented("CopyFilesFromService")
+func (network *KurtosisTestServiceNetwork) CopyFilesFromService(ctx context.Context, serviceIdentifier string, srcPath string, artifactName string) (enclave_data_directory.FilesArtifactUUID, error) {
+	return "", unimplemented("CopyFilesFromService")
 }
 
-func (network *KurtestosisServiceNetwork) GetServiceNames() (map[service.ServiceName]bool, error) {
-    return nil, unimplemented("GetServiceNames")
+func (network *KurtosisTestServiceNetwork) GetServiceNames() (map[service.ServiceName]bool, error) {
+	return nil, unimplemented("GetServiceNames")
 }
 
-func (network *KurtestosisServiceNetwork) GetExistingAndHistoricalServiceIdentifiers() (service_identifiers.ServiceIdentifiers, error) {
-    return nil, unimplemented("GetExistingAndHistoricalServiceIdentifiers")
+func (network *KurtosisTestServiceNetwork) GetExistingAndHistoricalServiceIdentifiers() (service_identifiers.ServiceIdentifiers, error) {
+	return nil, unimplemented("GetExistingAndHistoricalServiceIdentifiers")
 }
 
-func (network *KurtestosisServiceNetwork) ExistServiceRegistration(serviceName service.ServiceName) (bool, error) {
-    return false, unimplemented("ExistServiceRegistration")
+func (network *KurtosisTestServiceNetwork) ExistServiceRegistration(serviceName service.ServiceName) (bool, error) {
+	return false, unimplemented("ExistServiceRegistration")
 }
 
-func (network *KurtestosisServiceNetwork) RenderTemplates(templatesAndDataByDestinationRelFilepath map[string]*render_templates.TemplateData, artifactName string) (enclave_data_directory.FilesArtifactUUID, error) {
-    return "", unimplemented("RenderTemplates")
+func (network *KurtosisTestServiceNetwork) RenderTemplates(templatesAndDataByDestinationRelFilepath map[string]*render_templates.TemplateData, artifactName string) (enclave_data_directory.FilesArtifactUUID, error) {
+	return "", unimplemented("RenderTemplates")
 }
 
-func (network *KurtestosisServiceNetwork) UploadFilesArtifact(data io.Reader, contentMd5 []byte, artifactName string) (enclave_data_directory.FilesArtifactUUID, error) {
-    return "", unimplemented("UploadFilesArtifact")
+func (network *KurtosisTestServiceNetwork) UploadFilesArtifact(data io.Reader, contentMd5 []byte, artifactName string) (enclave_data_directory.FilesArtifactUUID, error) {
+	return "", unimplemented("UploadFilesArtifact")
 }
 
-func (network *KurtestosisServiceNetwork) GetFilesArtifactMd5(artifactName string) (enclave_data_directory.FilesArtifactUUID, []byte, bool, error) {
-    return "", nil, false, unimplemented("GetFilesArtifactMd5")
+func (network *KurtosisTestServiceNetwork) GetFilesArtifactMd5(artifactName string) (enclave_data_directory.FilesArtifactUUID, []byte, bool, error) {
+	return "", nil, false, unimplemented("GetFilesArtifactMd5")
 }
 
-func (network *KurtestosisServiceNetwork) UpdateFilesArtifact(fileArtifactUuid enclave_data_directory.FilesArtifactUUID, updatedContent io.Reader, contentMd5 []byte) error {
-    return unimplemented("UpdateFilesArtifact")
+func (network *KurtosisTestServiceNetwork) UpdateFilesArtifact(fileArtifactUuid enclave_data_directory.FilesArtifactUUID, updatedContent io.Reader, contentMd5 []byte) error {
+	return unimplemented("UpdateFilesArtifact")
 }
 
-func (network *KurtestosisServiceNetwork) GetUniqueNameForFileArtifact() (string, error) {
-    return "", unimplemented("GetUniqueNameForFileArtifact")
+func (network *KurtosisTestServiceNetwork) GetUniqueNameForFileArtifact() (string, error) {
+	return "", unimplemented("GetUniqueNameForFileArtifact")
 }
 
-func (network *KurtestosisServiceNetwork) GetApiContainerInfo() *service_network.ApiContainerInfo {
-    return apiContainerInfo
+func (network *KurtosisTestServiceNetwork) GetApiContainerInfo() *service_network.ApiContainerInfo {
+	return apiContainerInfo
 }
 
-func (network *KurtestosisServiceNetwork) GetEnclaveUuid() enclave.EnclaveUUID {
-    return enclave.EnclaveUUID(enclaveUUID)
+func (network *KurtosisTestServiceNetwork) GetEnclaveUuid() enclave.EnclaveUUID {
+	return enclave.EnclaveUUID(enclaveUUID)
 }
 
 func unimplemented(methodName string) error {
-	return fmt.Errorf("KurtestosisServiceNetwork does not support %s method", methodName)
+	return fmt.Errorf("KurtosisTestServiceNetwork does not support %s method", methodName)
 }

@@ -19,6 +19,7 @@ workflows:
     jobs:
       - go-release:
           context:
+            # TODO Once there is a new context in CircleCI, update this reference
             - circleci-repo-kurtestosis
           filters: 
             tags:

@@ -8,17 +8,17 @@ import (
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/startosis_packages"
 	"github.com/sirupsen/logrus"
 
-	"kurtestosis/cli/core"
+	"kurtosis-test/cli/core"
 )
 
 // LocalProxyPackageContentProvider wraps an existing package content provider
 // to resolve local packages without accessing github
 type LocalProxyPackageContentProvider struct {
 	startosis_packages.PackageContentProvider
-	Project *core.KurtestosisProject
+	Project *core.KurtosisTestProject
 }
 
-func CreateLocalProxyPackageContentProvider(project *core.KurtestosisProject, packageContentProvider startosis_packages.PackageContentProvider) *LocalProxyPackageContentProvider {
+func CreateLocalProxyPackageContentProvider(project *core.KurtosisTestProject, packageContentProvider startosis_packages.PackageContentProvider) *LocalProxyPackageContentProvider {
 	return &LocalProxyPackageContentProvider{
 		PackageContentProvider: packageContentProvider,
 		Project:                project,

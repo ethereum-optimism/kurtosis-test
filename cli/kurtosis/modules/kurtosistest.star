@@ -1,6 +1,6 @@
 # 
 # 
-# This module contains kurtestosis starlark runtime
+# This module contains kurtosistest starlark runtime
 # 
 # 
 
@@ -19,12 +19,12 @@ def test(plan, mod, fn_name):
 
     __after_test__(plan, mod, fn_name)
 
-kurtestosis = module(
-    "kurtestosis",
+kurtosistest = module(
+    "kurtosistest",
     test = test,
     # 
     # These are defined as global builtins when loading this module,
-    # we just re-export them under the kurtestosis namespace
+    # we just re-export them under the kurtosistest namespace
     # 
     get_service_config = get_service_config,
     debug = debug,

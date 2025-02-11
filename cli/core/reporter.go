@@ -3,11 +3,11 @@ package core
 type TestError = []interface{}
 
 type TestSuiteSummary struct {
-	Project *KurtestosisProject
+	Project   *KurtosisTestProject
 	summaries []TestFileSummary
 }
 
-func NewTestSuiteSummary(project *KurtestosisProject) *TestSuiteSummary {
+func NewTestSuiteSummary(project *KurtosisTestProject) *TestSuiteSummary {
 	return &TestSuiteSummary{
 		Project: project,
 	}
@@ -22,7 +22,7 @@ func (summary *TestSuiteSummary) Summaries() []TestFileSummary {
 }
 
 func (summary *TestSuiteSummary) Success() bool {
-	for _, testFileSummary := range(summary.summaries) {
+	for _, testFileSummary := range summary.summaries {
 		if !testFileSummary.Success() {
 			return false
 		}
@@ -32,7 +32,7 @@ func (summary *TestSuiteSummary) Success() bool {
 }
 
 type TestFileSummary struct {
-	TestFile *TestFile
+	TestFile  *TestFile
 	summaries []TestFunctionSummary
 }
 
@@ -45,7 +45,7 @@ func (summary *TestFileSummary) Append(testFunctionSummary *TestFunctionSummary)
 }
 
 func (summary *TestFileSummary) Success() bool {
-	for _, testFunctionSummary := range(summary.summaries) {
+	for _, testFunctionSummary := range summary.summaries {
 		if !testFunctionSummary.Success() {
 			return false
 		}
@@ -56,7 +56,7 @@ func (summary *TestFileSummary) Success() bool {
 
 type TestFunctionSummary struct {
 	TestFunction *TestFunction
-	errors []TestError
+	errors       []TestError
 }
 
 func (summary *TestFunctionSummary) Errors() []TestError {
@@ -69,7 +69,7 @@ func (summary *TestFunctionSummary) Success() bool {
 
 type TestReporter struct {
 	TestFunction *TestFunction
-	errors []TestError
+	errors       []TestError
 }
 
 func (reporter *TestReporter) Error(args ...interface{}) {
@@ -79,7 +79,7 @@ func (reporter *TestReporter) Error(args ...interface{}) {
 func (reporter *TestReporter) Summary() *TestFunctionSummary {
 	return &TestFunctionSummary{
 		TestFunction: reporter.TestFunction,
-		errors: reporter.errors,
+		errors:       reporter.errors,
 	}
 }
 

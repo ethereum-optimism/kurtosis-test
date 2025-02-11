@@ -1,4 +1,4 @@
-# kurtestosis
+# kurtosis-test
 
 Test runner for `kurtosis`
 
@@ -12,7 +12,7 @@ def test_my_function(plan):
 ```
 
 ```bash
-kurtestosis ./my-kurtosis-package
+kurtosis-test ./my-kurtosis-package
 ```
 
 ## Disclaimer
@@ -21,25 +21,25 @@ kurtestosis ./my-kurtosis-package
 
 ## Usage
 
-`kurtestosis` CLI currently only supports one command that runs the tests:
+`kurtosis-test` CLI currently only supports one command that runs the tests:
 
 ```bash
 Usage:
-  kurtestosis <path to kurtosis project> [flags]
+  kurtosis-test <path to kurtosis project> [flags]
 
 Flags:
   -h, --help                       help for cli
       --log-level string           Sets the level that the CLI will log at (panic|fatal|error|warning|info|debug|trace) (default "info")
-      --temp-dir string            Directory for kurtosis temporary files (default ".kurtestosis")
+      --temp-dir string            Directory for kurtosis temporary files (default ".kurtosis-test")
       --test-file-pattern string   Glob expression to use when looking for starlark test files (default "**/*_{test,spec}.star")
       --test-pattern string        Glob expression to use when looking for test functions (default "test_*")
 ```
 
 ## Writing starlark tests
 
-This repository contains examples of [starlark](/test/project--passing) [tests](/test/project--failing) that are being used to test `kurtestosis` itself.
+This repository contains examples of [starlark](/test/project--passing) [tests](/test/project--failing) that are being used to test `kurtosis-test` itself.
 
-By default, `kurtestosis` will look for files named `*_test.star`, collecting functions named `test_*` (these also need to accept exactly one argument - the `plan` object, otherwise they will not be executed).
+By default, `kurtosis-test` will look for files named `*_test.star`, collecting functions named `test_*` (these also need to accept exactly one argument - the `plan` object, otherwise they will not be executed).
 
 An example of a no-op test is:
 
@@ -48,7 +48,7 @@ def test_not_much(plan):
     assert.true(True)
 ```
 
-`kurtestosis` comes with a built-in assertion library (under global name `assert`) and a utility module (under global name `kurtestosis`).
+`kurtosis-test` comes with a built-in assertion library (under global name `assert`) and a utility module (under global name `kurtosis-test`).
 
 ### The `assert` module
 
@@ -74,12 +74,12 @@ def test_with_exoect(plan):
     expect.true(True)
 ```
 
-### The `kurtestosis` module
+### The `kurtosistest` module
 
-The `kurtestosis` builtin module comes from [this repository](/cli/kurtosis/modules/kurtestosis.star). It contains functionality
+The `kurtosistest` builtin module comes from [this repository](/cli/kurtosis/modules/kurtosistest.star). It contains functionality
 that is either outside of scope of `kurtosis` or has not yet been included.
 
-#### `kurtestosis.get_service_config(service_name)`
+#### `kurtosistest.get_service_config(service_name)`
 
 An extension of `plan.get_service`, `get_service_config` allows `ServiceConfig` objects to be inspected.
 
@@ -92,7 +92,7 @@ def test_get_service_config(plan):
         )
     )
 
-    service_config = kurtestosis.get_service_config(service_name = "my-service")
+    service_config = kurtosistest.get_service_config(service_name = "my-service")
 
     assert.eq(service_config.image, "alpine:latest")
 ```
@@ -105,24 +105,24 @@ At the moment, only parts of the `ServiceConfig` struct are returned. The missin
 - `ready_conditions`
 - `image` field currently only returns the image name, not the build spec
 
-#### `kurtestosis.debug(value)`
+#### `kurtosistest.debug(value)`
 
-An equivalent of `print` in pure starlark, useful for debugging `kurtestosis` tests.
+An equivalent of `print` in pure starlark, useful for debugging `kurtosistest` tests.
 
 ```python
 def test_debug(plan):
-    kurtestosis.debug("some value")
-    kurtestosis.debug(value = "some value")
+    kurtosistest.debug("some value")
+    kurtosistest.debug(value = "some value")
 ```
 
-#### `kurtestosis.mock(target, method_name)`
+#### `kurtosistest.mock(target, method_name)`
 
 Allows for spying and return value mocking of module functions:
 
 ```python
 def test_mock(plan):
     # We'll create a mock object
-    mock_run_sh = kurtestosis.mock(plan, "run_sh")
+    mock_run_sh = kurtosistest.mock(plan, "run_sh")
 
     # We can now mock return values
     mock_run_sh.mock_return_value("i ran sh")
@@ -143,7 +143,7 @@ def test_mock(plan):
     mock_run_sh.original
 ```
 
-`kurtestosis.mock` returns a `mock` struct described above. This struct keeps track of all method calls along with their return values. It is currently not possible to restore the original method (due to the fact that every test function is run in isolation, this does not leak any mocks between tests).
+`kurtosistest.mock` returns a `mock` struct described above. This struct keeps track of all method calls along with their return values. It is currently not possible to restore the original method (due to the fact that every test function is run in isolation, this does not leak any mocks between tests).
 
 ## Development
 
@@ -152,7 +152,7 @@ def test_mock(plan):
 We use [`mise`](https://mise.jdx.dev/) as a dependency manager for these tools.
 Once properly installed, `mise` will provide the correct versions for each tool. `mise` does not
 replace any other installations of these binaries and will only serve these binaries when you are
-working inside of the `kurtestosis` directory.
+working inside of the `kurtosis-test` directory.
 
 #### Install `mise`
 

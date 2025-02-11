@@ -15,10 +15,10 @@ import (
 	bolt "go.etcd.io/bbolt"
 )
 
-type KurtestosisValueStore struct {
-	RuntimeValueStore *runtime_value_store.RuntimeValueStore
+type KurtosisTestValueStore struct {
+	RuntimeValueStore            *runtime_value_store.RuntimeValueStore
 	InterpretationTimeValueStore *interpretation_time_value_store.InterpretationTimeValueStore
-	StarlarkValueSerde *kurtosis_types.StarlarkValueSerde
+	StarlarkValueSerde           *kurtosis_types.StarlarkValueSerde
 }
 
 func CreateValueStores(enclaveDB *enclave_db.EnclaveDB, starlarkValueSerde *kurtosis_types.StarlarkValueSerde) (*runtime_value_store.RuntimeValueStore, *interpretation_time_value_store.InterpretationTimeValueStore, error) {
@@ -35,7 +35,7 @@ func CreateValueStores(enclaveDB *enclave_db.EnclaveDB, starlarkValueSerde *kurt
 	return runtimeValueStore, interpretationTimeValueStore, nil
 }
 
-type TeardownEnclaveDB = func() ()
+type TeardownEnclaveDB = func()
 
 func CreateEnclaveDB() (*enclave_db.EnclaveDB, TeardownEnclaveDB, error) {
 	var err error
@@ -62,9 +62,9 @@ func CreateEnclaveDB() (*enclave_db.EnclaveDB, TeardownEnclaveDB, error) {
 	}
 
 	// Teardown function that closes the database and removes the temporary file
-	// 
+	//
 	// TODO Technically this can still leave some trash behind if the bolt.Open call fails
-	teardown := func () {
+	teardown := func() {
 		var err error
 
 		err = db.Close()
