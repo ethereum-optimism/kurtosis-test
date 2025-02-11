@@ -1,9 +1,9 @@
 def test_debug(plan):
-    kurtosistestdebug(struct())
-    kurtosistestdebug(value = struct())
-    kurtosistestdebug(value = {
+    kurtosistest.debug(struct())
+    kurtosistest.debug(value = struct())
+    kurtosistest.debug(value = {
         "some": "dict"
     })
 
     # This will produce a warning as function pointers cannot be copied
-    kurtosistestdebug(value = plan.run_sh)
+    kurtosistest.debug(value = plan.run_sh)

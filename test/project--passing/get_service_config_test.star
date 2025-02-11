@@ -28,7 +28,7 @@ def test_get_service_config(plan):
         ),
     )
 
-    service_config = kurtosistestget_service_config(service_name = service_name)
+    service_config = kurtosistest.get_service_config(service_name = service_name)
 
     assert.ne(service_config, None)
     assert.eq(service_config.image, "dependency")
