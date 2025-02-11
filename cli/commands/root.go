@@ -135,8 +135,6 @@ func run(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	logrus.Errorf("Test suite failed")
-
 	return fmt.Errorf("test suite failed")
 }
 
@@ -266,7 +264,11 @@ func runTestFunction(testFunction *core.TestFunction) (*core.TestFunctionSummary
 	if testFunctionSummary.Success() {
 		logrus.Infof("\tSUCCESS %s", testFunction)
 	} else {
-		logrus.Errorf("\tFAIL %s:\n================================================\n%v\n================================================", testFunction, strings.Join(core.ToStringList(testFunctionSummary.Errors()), "\n"))
+		errorsList := core.ToStringList(testFunctionSummary.Errors())
+		errorsString := strings.ReplaceAll(strings.Join(errorsList, "\n\n"), "\\n", "\n")
+		errorsSeparator := "================================================"
+
+		logrus.Errorf("\tFAIL %s:\n%s\n%v\n%s", testFunction, errorsSeparator, errorsString, errorsSeparator)
 	}
 
 	return testFunctionSummary, nil
