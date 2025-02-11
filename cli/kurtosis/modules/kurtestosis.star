@@ -28,4 +28,5 @@ kurtestosis = module(
     # 
     get_service_config = get_service_config,
     debug = debug,
+    mock = mock,
 )

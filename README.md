@@ -110,10 +110,40 @@ At the moment, only parts of the `ServiceConfig` struct are returned. The missin
 An equivalent of `print` in pure starlark, useful for debugging `kurtestosis` tests.
 
 ```python
-def test_get_service_config(plan):
+def test_debug(plan):
     kurtestosis.debug("some value")
     kurtestosis.debug(value = "some value")
 ```
+
+#### `kurtestosis.mock(target, method_name)`
+
+Allows for spying and return value mocking of module functions:
+
+```python
+def test_mock(plan):
+    # We'll create a mock object
+    mock_run_sh = kurtestosis.mock(plan, "run_sh")
+
+    # We can now mock return values
+    mock_run_sh.mock_return_value("i ran sh")
+
+    # And un-mock the return value (by passing no arguments)
+    mock_run_sh.mock_return_value()
+
+    # And inspect calls made to the mocked method
+    # 
+    # Every element in the calls() list is a struct containing the following fields:
+    # 
+    # - `args` contains a list of positional arguments
+    # - `kwargs` contains a dict of named arguments
+    # - `return_value` contains (mocked or unmocked) return value
+    mock_run_sh.calls()
+    
+    # We also have access to the original method for convenience
+    mock_run_sh.original
+```
+
+`kurtestosis.mock` returns a `mock` struct described above. This struct keeps track of all method calls along with their return values. It is currently not possible to restore the original method (due to the fact that every test function is run in isolation, this does not leak any mocks between tests).
 
 ## Development
 

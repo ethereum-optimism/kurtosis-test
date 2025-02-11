@@ -27,6 +27,7 @@ func LoadKurtestosisModule(interpretationTimeValueStore *interpretation_time_val
 		"__after_test__":                     starlark.NewBuiltin("__after_test__", runAfterTest),
 		builtins.GetServiceConfigBuiltinName: starlark.NewBuiltin(builtins.GetServiceConfigBuiltinName, builtins.NewGetServiceConfig(interpretationTimeValueStore).CreateBuiltin()),
 		builtins.DebugBuiltinName:            starlark.NewBuiltin(builtins.DebugBuiltinName, builtins.NewDebug().CreateBuiltin()),
+		builtins.MockBuiltinName:             starlark.NewBuiltin(builtins.MockBuiltinName, builtins.NewMock().CreateBuiltin()),
 	}
 	thread := new(starlark.Thread)
 
