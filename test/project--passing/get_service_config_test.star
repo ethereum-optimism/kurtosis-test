@@ -157,7 +157,7 @@ def test_get_service_config_with_persistent_directory_and_size(plan):
             image = image_name,
             files = {
                 directory_name: Directory(
-                    persistent_key = persistent_key
+                    persistent_key = persistent_key,
                     size = size
                 )
             }
