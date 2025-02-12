@@ -99,7 +99,7 @@ def test_get_service_config(plan):
 
 At the moment, only parts of the `ServiceConfig` struct are returned. The missing fields are:
 
-- `files`
+- `files` field is not symmetrical and will return the legacy `"/path/to/file": "/artifact_name"` as a `Directory` object with one artifact
 - `user`
 - `tolerances`
 - `ready_conditions`
