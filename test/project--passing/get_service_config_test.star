@@ -1,10 +1,11 @@
+service_name = "my-service"
+image_name = "dependency"
+
 def test_get_service_config(plan):
-    service_name = "my-service"
-    
     plan.add_service(
         name = service_name,
         config = ServiceConfig(
-            image = "dependency",
+            image = image_name,
             labels = {
                 "my-label": "my-label-value"
             },
@@ -31,7 +32,7 @@ def test_get_service_config(plan):
     service_config = kurtosistest.get_service_config(service_name = service_name)
 
     assert.ne(service_config, None)
-    assert.eq(service_config.image, "dependency")
+    assert.eq(service_config.image, image_name)
     assert.eq(service_config.private_ip_address_placeholder, "KURTOSIS_IP_ADDR_PLACEHOLDER")
     assert.eq(service_config.labels, { "my-label": "my-label-value" })
     assert.eq(service_config.ports, {})
@@ -49,6 +50,132 @@ def test_get_service_config(plan):
     assert.eq(service_config.tini_enabled, True)
 
     # TODO
-    assert.eq(service_config.files, None)
     assert.eq(service_config.user, None)
     assert.eq(service_config.tolerations, None)
+
+# 
+def test_get_service_config_with_legacy_file(plan):
+    file_name = "/key/file/0"
+    file_mapping = "/value/file/0"
+
+    plan.add_service(
+        name = service_name,
+        config = ServiceConfig(
+            image = image_name,
+            files = {
+                file_name: file_mapping
+            }
+        )
+    )
+
+    service_config = kurtosistest.get_service_config(service_name = service_name)
+
+    # 
+    # TODO Unfortunately assert is not great when comparing custom starlark types and will panic
+    # 
+    # That's why we need to assert the files property by property
+    # 
+
+    # First make sure the dictionary only has the specified file
+    assert.eq(service_config.files.keys(), [file_name])
+
+    # Now make sure it only contains the specified artifact
+    directory = service_config.files[file_name]
+    assert.eq(directory.artifact_names, [file_mapping])
+
+def test_get_service_config_with_directory_artifacts(plan):
+    directory_name = "/key/file/0"
+    directory_artifact_names = ["/value/file/0", "value/file/1"]
+
+    plan.add_service(
+        name = service_name,
+        config = ServiceConfig(
+            image = image_name,
+            files = {
+                directory_name: Directory(
+                    artifact_names = directory_artifact_names
+                )
+            }
+        )
+    )
+
+    service_config = kurtosistest.get_service_config(service_name = service_name)
+    
+    # 
+    # TODO Unfortunately assert is not great when comparing custom starlark types and will panic
+    # 
+    # That's why we need to assert the files property by property
+    # 
+
+    # First make sure the dictionary only has the specified directory
+    assert.eq(service_config.files.keys(), [directory_name])
+
+    # Now make sure it only contains the specified artifacts
+    directory = service_config.files[directory_name]
+    assert.eq(directory.artifact_names, directory_artifact_names)
+
+def test_get_service_config_with_persistent_directory_and_no_size(plan):
+    directory_name = "/key/directory/0"
+    persistent_key = "/persistent/key/0"
+
+    plan.add_service(
+        name = service_name,
+        config = ServiceConfig(
+            image = image_name,
+            files = {
+                directory_name: Directory(
+                    persistent_key = persistent_key
+                )
+            }
+        )
+    )
+
+    service_config = kurtosistest.get_service_config(service_name = service_name)
+
+    # 
+    # TODO Unfortunately assert is not great when comparing custom starlark types and will panic
+    # 
+    # That's why we need to assert the files property by property
+    # 
+
+    # First make sure the dictionary only has the specified directory
+    assert.eq(service_config.files.keys(), [directory_name])
+
+    # Now check the persistent_key and the default size
+    directory = service_config.files[directory_name]
+    assert.eq(directory.persistent_key, persistent_key)
+    assert.eq(directory.size, 1024)
+
+def test_get_service_config_with_persistent_directory_and_size(plan):
+    directory_name = "/key/directory/0"
+    persistent_key = "/persistent/key/0"
+    size = 3642
+
+    plan.add_service(
+        name = service_name,
+        config = ServiceConfig(
+            image = image_name,
+            files = {
+                directory_name: Directory(
+                    persistent_key = persistent_key,
+                    size = size
+                )
+            }
+        )
+    )
+
+    service_config = kurtosistest.get_service_config(service_name = service_name)
+
+    # 
+    # TODO Unfortunately assert is not great when comparing custom starlark types and will panic
+    # 
+    # That's why we need to assert the files property by property
+    # 
+
+    # First make sure the dictionary only has the specified directory
+    assert.eq(service_config.files.keys(), [directory_name])
+
+    # Now check the persistent_key and the specified size
+    directory = service_config.files[directory_name]
+    assert.eq(directory.persistent_key, persistent_key)
+    assert.eq(directory.size, size)

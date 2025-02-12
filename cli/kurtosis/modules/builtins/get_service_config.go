@@ -3,11 +3,13 @@ package builtins
 import (
 	"github.com/kurtosis-tech/kurtosis/container-engine-lib/lib/backend_interface/objects/port_spec"
 	"github.com/kurtosis-tech/kurtosis/container-engine-lib/lib/backend_interface/objects/service"
+	"github.com/kurtosis-tech/kurtosis/container-engine-lib/lib/backend_interface/objects/service_directory"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/interpretation_time_value_store"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/kurtosis_starlark_framework"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/kurtosis_starlark_framework/builtin_argument"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/kurtosis_starlark_framework/kurtosis_helper"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/kurtosis_starlark_framework/kurtosis_type_constructor"
+	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/kurtosis_types/directory"
 	kurtosis_port_spec "github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/kurtosis_types/port_spec"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/kurtosis_types/service_config"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/startosis_errors"
@@ -18,6 +20,8 @@ const (
 	GetServiceConfigBuiltinName = "get_service_config"
 
 	ServiceNameArgName = "service_name"
+
+	bytesInMegaBytes int64 = 1024 * 1024
 )
 
 func NewGetServiceConfig(
@@ -121,11 +125,16 @@ func toStarlarkServiceConfig(serviceName string, serviceConfig *service.ServiceC
 		return nil, err
 	}
 
+	files, err := filesToStarlarkValue(serviceConfig.GetFilesArtifactsExpansion(), serviceConfig.GetPersistentDirectories())
+	if err != nil {
+		return nil, err
+	}
+
 	args := []starlark.Value{
 		starlark.String(serviceConfig.GetContainerImageName()), // image
-		ports,         // ports
-		publicPorts,   // publicPorts
-		starlark.None, // TODO files
+		ports,       // ports
+		publicPorts, // publicPorts
+		files,       // files
 		stringArrayToStarlarkList(serviceConfig.GetEntrypointArgs()), // entrypointArgs
 		stringArrayToStarlarkList(serviceConfig.GetCmdArgs()),        // cmdArgs
 		envVars, // env_vars
@@ -211,4 +220,70 @@ func portSpecMapToStarlarkValue(serviceName string, portSpec *port_spec.PortSpec
 	)
 
 	return kurtosisPortSpec, err
+}
+
+func persistenDirectoryToStarlarkValue(persistenDirectory service_directory.PersistentDirectory) (*directory.Directory, *startosis_errors.InterpretationError) {
+	args := []starlark.Value{
+		nil, // artifact_names
+		starlark.String(persistenDirectory.PersistentKey),                     // persistent_key
+		starlark.MakeInt64(int64(persistenDirectory.Size) / bytesInMegaBytes), // size
+	}
+
+	return directoryArgsToDirectory(args)
+}
+
+func directoryToStarlarkValue(fileArtifactNames []string) (*directory.Directory, *startosis_errors.InterpretationError) {
+	args := []starlark.Value{
+		stringArrayToStarlarkList(fileArtifactNames), // artifact_names
+		nil, // persistent_key
+		nil, // size
+	}
+
+	return directoryArgsToDirectory(args)
+}
+
+func directoryArgsToDirectory(args []starlark.Value) (*directory.Directory, *startosis_errors.InterpretationError) {
+	argumentDefinitions := directory.NewDirectoryType().KurtosisBaseBuiltin.Arguments
+	argumentValuesSet := builtin_argument.NewArgumentValuesSet(argumentDefinitions, args)
+	kurtosisDefaultValue, interpretationErr := kurtosis_type_constructor.CreateKurtosisStarlarkTypeDefault(directory.DirectoryTypeName, argumentValuesSet)
+	if interpretationErr != nil {
+		return nil, interpretationErr
+	}
+	return &directory.Directory{
+		KurtosisValueTypeDefault: kurtosisDefaultValue,
+	}, nil
+}
+
+func filesToStarlarkValue(filesArtifactExpansion *service_directory.FilesArtifactsExpansion, persistentDirectories *service_directory.PersistentDirectories) (*starlark.Dict, *startosis_errors.InterpretationError) {
+	filesStarlark := starlark.NewDict(0)
+
+	if filesArtifactExpansion != nil {
+		for key, fileArtifactNames := range filesArtifactExpansion.ServiceDirpathsToArtifactIdentifiers {
+			directoryStarlark, err := directoryToStarlarkValue(fileArtifactNames)
+			if err != nil {
+				return nil, err
+			}
+
+			setKeyErr := filesStarlark.SetKey(starlark.String(key), directoryStarlark)
+			if setKeyErr != nil {
+				return nil, startosis_errors.WrapWithInterpretationError(setKeyErr, "failed to set key")
+			}
+		}
+	}
+
+	if persistentDirectories != nil {
+		for key, persistentDirectory := range persistentDirectories.ServiceDirpathToPersistentDirectory {
+			persistentDirectoryStarlark, err := persistenDirectoryToStarlarkValue(persistentDirectory)
+			if err != nil {
+				return nil, err
+			}
+
+			setKeyErr := filesStarlark.SetKey(starlark.String(key), persistentDirectoryStarlark)
+			if setKeyErr != nil {
+				return nil, startosis_errors.WrapWithInterpretationError(setKeyErr, "failed to set key")
+			}
+		}
+	}
+
+	return filesStarlark, nil
 }
