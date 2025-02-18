@@ -14,6 +14,7 @@ import (
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/kurtosis_types/service_config"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/startosis_errors"
 	"go.starlark.net/starlark"
+	v1 "k8s.io/api/core/v1"
 )
 
 const (
@@ -130,6 +131,11 @@ func toStarlarkServiceConfig(serviceName string, serviceConfig *service.ServiceC
 		return nil, err
 	}
 
+	tolerationsStarlark, err := tolerationsToStarlarkList(serviceConfig.GetTolerations())
+	if err != nil {
+		return nil, err
+	}
+
 	args := []starlark.Value{
 		starlark.String(serviceConfig.GetContainerImageName()), // image
 		ports,       // ports
@@ -145,12 +151,12 @@ func toStarlarkServiceConfig(serviceName string, serviceConfig *service.ServiceC
 		starlark.MakeUint64(serviceConfig.GetMinCPUAllocationMillicpus()),    // min_cpu
 		starlark.MakeUint64(serviceConfig.GetMemoryAllocationMegabytes()),    // max_memory
 		starlark.MakeUint64(serviceConfig.GetMinMemoryAllocationMegabytes()), // min_memory
-		starlark.None,  // TODO ready_conditions - these are not accessible it seems
-		labels,         // labels
-		starlark.None,  // TODO user
-		starlark.None,  // TODO tolerations
-		nodeSelectors,  // node_selectors
-		filesToBeMoved, // files_to_be_moved
+		starlark.None,       // TODO ready_conditions - these are not accessible it seems
+		labels,              // labels
+		starlark.None,       // TODO user
+		tolerationsStarlark, // TODO tolerations
+		nodeSelectors,       // node_selectors
+		filesToBeMoved,      // files_to_be_moved
 		starlark.Bool(serviceConfig.GetTiniEnabled()), // tini_enabled
 	}
 
@@ -175,6 +181,22 @@ func stringArrayToStarlarkList(input []string) (output *starlark.List) {
 	return starlark.NewList(values)
 }
 
+func stringToStarlarkStringMaybe(input string) starlark.Value {
+	if input == "" {
+		return starlark.None
+	} else {
+		return starlark.String(input)
+	}
+}
+
+func int64PointerToStarlarkValueMaybe(input *int64) starlark.Value {
+	if input == nil {
+		return starlark.None
+	} else {
+		return starlark.MakeInt64(*input)
+	}
+}
+
 func stringMapToStarlarkDict(input map[string]string) (*starlark.Dict, *startosis_errors.InterpretationError) {
 	dict := starlark.NewDict(len(input))
 	for k, v := range input {
@@ -185,6 +207,33 @@ func stringMapToStarlarkDict(input map[string]string) (*starlark.Dict, *startosi
 	}
 
 	return dict, nil
+}
+
+func tolerationsToStarlarkList(tolerations []v1.Toleration) (*starlark.List, *startosis_errors.InterpretationError) {
+	starlarkTolerations := []starlark.Value{}
+	for _, toleration := range tolerations {
+		args := []starlark.Value{
+			stringToStarlarkStringMaybe(toleration.Key),
+			stringToStarlarkStringMaybe(string(toleration.Operator)),
+			stringToStarlarkStringMaybe(toleration.Value),
+			stringToStarlarkStringMaybe(string(toleration.Effect)),
+			int64PointerToStarlarkValueMaybe(toleration.TolerationSeconds),
+		}
+
+		argumentDefinitions := service_config.NewTolerationType().KurtosisBaseBuiltin.Arguments
+		argumentValuesSet := builtin_argument.NewArgumentValuesSet(argumentDefinitions, args)
+		kurtosisDefaultValue, interpretationErr := kurtosis_type_constructor.CreateKurtosisStarlarkTypeDefault(directory.DirectoryTypeName, argumentValuesSet)
+		if interpretationErr != nil {
+			return nil, interpretationErr
+		}
+		starlarkToleration := &service_config.Toleration{
+			KurtosisValueTypeDefault: kurtosisDefaultValue,
+		}
+
+		starlarkTolerations = append(starlarkTolerations, starlarkToleration)
+	}
+
+	return starlark.NewList(starlarkTolerations), nil
 }
 
 func portSpecMapToStarlarkDict(serviceName string, input map[string]*port_spec.PortSpec) (*starlark.Dict, *startosis_errors.InterpretationError) {

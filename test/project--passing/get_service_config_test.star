@@ -48,10 +48,10 @@ def test_get_service_config(plan):
     assert.eq(service_config.max_memory, 20)
     assert.eq(service_config.memory_allocation, 20)
     assert.eq(service_config.tini_enabled, True)
+    assert.eq(service_config.tolerations, [])
 
     # TODO
     assert.eq(service_config.user, None)
-    assert.eq(service_config.tolerations, None)
 
 # 
 def test_get_service_config_with_legacy_file(plan):
@@ -179,3 +179,48 @@ def test_get_service_config_with_persistent_directory_and_size(plan):
     directory = service_config.files[directory_name]
     assert.eq(directory.persistent_key, persistent_key)
     assert.eq(directory.size, size)
+
+def test_get_service_config_with_tolerations(plan):
+    plan.add_service(
+        name = service_name,
+        config = ServiceConfig(
+            image = image_name,
+            tolerations = [
+                 Toleration(
+                    key = "toleration-1-key",
+                    value = "toleration-1-value",
+                    operator = "Equal",
+                    effect = "NoSchedule",
+                    toleration_seconds = 64,
+                ),
+                Toleration(
+                    # 'Toleration' expects either 'key' to be set or for 'operator' to be 'Exists'
+                    operator = "Exists",
+                )
+            ]
+        )
+    )
+
+    service_config = kurtosistest.get_service_config(service_name = service_name)
+
+    # 
+    # TODO Unfortunately assert is not great when comparing custom starlark types and will panic
+    # 
+    # That's why we need to assert the files property by property
+    # 
+
+    assert.eq(len(service_config.tolerations), 2)
+
+    toleration0 = service_config.tolerations[0]
+    assert.eq(toleration0.key, "toleration-1-key")
+    assert.eq(toleration0.value, "toleration-1-value")
+    assert.eq(toleration0.operator, "Equal")
+    assert.eq(toleration0.effect, "NoSchedule")
+    assert.eq(toleration0.toleration_seconds, 64)
+
+    toleration1 = service_config.tolerations[1]
+    assert.eq(toleration1.key, None)
+    assert.eq(toleration1.value, None)
+    assert.eq(toleration1.operator, "Exists")
+    assert.eq(toleration1.effect, None)
+    assert.eq(toleration1.toleration_seconds, None)
