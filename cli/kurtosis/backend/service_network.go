@@ -6,6 +6,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"sync/atomic"
 
 	"github.com/kurtosis-tech/kurtosis/container-engine-lib/lib/backend_interface/objects/enclave"
 	"github.com/kurtosis-tech/kurtosis/container-engine-lib/lib/backend_interface/objects/exec_result"
@@ -28,12 +29,12 @@ var (
 )
 
 type KurtosisTestServiceNetwork struct {
-	fileArtifactNameCounter uint
+	fileArtifactNameCounter atomic.Int64
 }
 
 func CreateKurtosisTestServiceNetwork() *KurtosisTestServiceNetwork {
 	return &KurtosisTestServiceNetwork{
-		fileArtifactNameCounter: 0,
+		fileArtifactNameCounter: atomic.Int64{},
 	}
 }
 
@@ -177,9 +178,9 @@ func (network *KurtosisTestServiceNetwork) UpdateFilesArtifact(fileArtifactUuid 
 }
 
 func (network *KurtosisTestServiceNetwork) GetUniqueNameForFileArtifact() (string, error) {
-	network.fileArtifactNameCounter++
+	artifactIndex := network.fileArtifactNameCounter.Add(1)
 
-	return fmt.Sprintf("file-artifact-%d", network.fileArtifactNameCounter), nil
+	return fmt.Sprintf("file-artifact-%d", artifactIndex), nil
 }
 
 func (network *KurtosisTestServiceNetwork) GetApiContainerInfo() *service_network.ApiContainerInfo {
