@@ -29,12 +29,12 @@ var (
 )
 
 type KurtosisTestServiceNetwork struct {
-	fileArtifactNameCounter atomic.Int64
+	fileArtifactNameCounter atomic.Uint64
 }
 
 func CreateKurtosisTestServiceNetwork() *KurtosisTestServiceNetwork {
 	return &KurtosisTestServiceNetwork{
-		fileArtifactNameCounter: atomic.Int64{},
+		fileArtifactNameCounter: atomic.Uint64{},
 	}
 }
 
