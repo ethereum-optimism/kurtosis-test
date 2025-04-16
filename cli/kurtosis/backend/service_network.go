@@ -27,10 +27,14 @@ var (
 	_ service_network.ServiceNetwork = (*KurtosisTestServiceNetwork)(nil)
 )
 
-type KurtosisTestServiceNetwork struct{}
+type KurtosisTestServiceNetwork struct {
+	fileArtifactNameCounter uint
+}
 
 func CreateKurtosisTestServiceNetwork() *KurtosisTestServiceNetwork {
-	return &KurtosisTestServiceNetwork{}
+	return &KurtosisTestServiceNetwork{
+		fileArtifactNameCounter: 0,
+	}
 }
 
 func (network *KurtosisTestServiceNetwork) AddService(
@@ -173,7 +177,9 @@ func (network *KurtosisTestServiceNetwork) UpdateFilesArtifact(fileArtifactUuid 
 }
 
 func (network *KurtosisTestServiceNetwork) GetUniqueNameForFileArtifact() (string, error) {
-	return "", unimplemented("GetUniqueNameForFileArtifact")
+	network.fileArtifactNameCounter++
+
+	return fmt.Sprintf("file-artifact-%d", network.fileArtifactNameCounter), nil
 }
 
 func (network *KurtosisTestServiceNetwork) GetApiContainerInfo() *service_network.ApiContainerInfo {
