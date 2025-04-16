@@ -1,8 +1,8 @@
 package backend_test
 
 import (
-	"fmt"
 	"kurtosis-test/cli/kurtosis/backend"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -11,19 +11,25 @@ import (
 func TestKurtosisTestServiceNetwork(t *testing.T) {
 
 	t.Run("should create unique artifact filenames", func(t *testing.T) {
-		t.Parallel()
+		var wg sync.WaitGroup
+		var artifactNames sync.Map
 
 		serviceNetwork := backend.CreateKurtosisTestServiceNetwork()
-		artifactNames := make(map[string]bool)
 
 		for i := 0; i < 100; i++ {
-			t.Run(fmt.Sprintf("check %d", i), func(t *testing.T) {
+			wg.Add(1)
+
+			go func() {
+				defer wg.Done()
+
 				artifactName, err := serviceNetwork.GetUniqueNameForFileArtifact()
 				require.NoError(t, err)
-				require.False(t, artifactNames[artifactName], "Artifact name should be unique")
 
-				artifactNames[artifactName] = true
-			})
+				_, loaded := artifactNames.LoadOrStore(artifactName, true)
+				require.False(t, loaded, "Artifact name should be unique")
+			}()
 		}
+
+		wg.Wait()
 	})
 }
