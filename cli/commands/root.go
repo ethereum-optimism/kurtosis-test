@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"kurtosis-test/cli/core"
@@ -102,7 +103,9 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 
 	// Let's now get the list of matching test files
-	testFiles, testFilesErr := core.ListMatchingTestFiles(project, testFilePatternStr)
+	// 
+	// We need to make sure to ignore the test files in the temporary directory
+	testFiles, testFilesErr := core.ListMatchingTestFiles(project, testFilePatternStr, filepath.Join(tempDirRootStr, "**"))
 	if testFilesErr != nil {
 		logrus.Errorf("Error matching test files in project: %v", testFilesErr)
 
