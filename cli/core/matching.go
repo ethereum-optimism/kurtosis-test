@@ -28,11 +28,20 @@ func (testFunction *TestFunction) String() string {
 	return fmt.Sprintf("%s:%s", testFunction.TestFile, testFunction.Name)
 }
 
-func ListMatchingTestFiles(project *KurtosisTestProject, testFilePattern string) ([]*TestFile, error) {
+func ListMatchingTestFiles(project *KurtosisTestProject, testFilePattern string, ignoredTestFilePattern string) ([]*TestFile, error) {
 	// The testFilePattern is expected to be a relative path from the project root
 	// so we first need to make sure it will only match inside the project root
 	testFilePatternAbsoute := filepath.Join(project.Path, testFilePattern)
 	logrus.Debugf("Looking for test files matching %s", testFilePatternAbsoute)
+
+	// The ignoredTestFilePattern is expected to be a relative path from the project root
+	// or an absolute path so we'll normalize it into an absolute path before using it
+	ignoredTestFilePatternAbsolute := filepath.Join(project.Path, ignoredTestFilePattern)
+	if filepath.IsAbs(ignoredTestFilePattern) {
+		ignoredTestFilePatternAbsolute = ignoredTestFilePattern
+	}
+
+	logrus.Infof("Pattern %s", ignoredTestFilePatternAbsolute)
 
 	// We look for the matching files
 	testSuiteFileAssets, _, globErr := glob.Glob([]string{testFilePatternAbsoute})
@@ -48,6 +57,18 @@ func ListMatchingTestFiles(project *KurtosisTestProject, testFilePattern string)
 		// We let the user know if the match is a directory and continue
 		if testSuiteFileAsset.IsDir() {
 			logrus.Debugf("Skipping matched test file %s because it's a directory", testFilePath)
+			continue
+		}
+
+		// We need to check whether the match is ignored or not
+		isIgnored, err := filepath.Match(ignoredTestFilePatternAbsolute, testFilePath)
+		if err != nil {
+			logrus.Warnf("Failed to match ignored test file pattern %s against %s: %v", ignoredTestFilePattern, testFilePath, err)
+			continue
+		}
+
+		if isIgnored {
+			logrus.Debugf("Skipping matched test file %s because it matches ignored pattern %s", testFilePath, ignoredTestFilePattern)
 			continue
 		}
 
