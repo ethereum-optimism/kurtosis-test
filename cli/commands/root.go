@@ -103,7 +103,7 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 
 	// Let's now get the list of matching test files
-	// 
+	//
 	// We need to make sure to ignore the test files in the temporary directory
 	testFiles, testFilesErr := core.ListMatchingTestFiles(project, testFilePatternStr, filepath.Join(tempDirRootStr, "**"))
 	if testFilesErr != nil {
@@ -155,7 +155,7 @@ func runTestFile(testFile *core.TestFile) (*core.TestFileSummary, error) {
 
 	// Exit if there are no test suites to run
 	if len(testFunctions) == 0 {
-		logrus.Warnf("No tests found matching the test pattern %s in %s", testPatternStr, testFile)
+		logrus.Debugf("No tests found matching the test pattern %s in %s", testPatternStr, testFile)
 
 		return testFileSummary, nil
 	}
