@@ -120,3 +120,5 @@ replace github.com/kurtosis-tech/kurtosis/name_generator v0.0.0 => github.com/ku
 replace github.com/kurtosis-tech/kurtosis/metrics-library/golang v0.0.0 => github.com/kurtosis-tech/kurtosis/metrics-library/golang v0.0.0-20250827174605-dfe0800d6595
 
 replace github.com/kurtosis-tech/kurtosis/api/golang v0.84.10 => github.com/kurtosis-tech/kurtosis/api/golang v1.11.1
+
+replace github.com/kurtosis-tech/kurtosis/kurtosis_version v0.0.0 => github.com/kurtosis-tech/kurtosis/kurtosis_version v0.0.0-20250827174605-dfe0800d6595
