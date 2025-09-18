@@ -11,6 +11,7 @@ import (
 	"kurtosis-test/cli/kurtosis/backend"
 
 	"github.com/kurtosis-tech/kurtosis/container-engine-lib/lib/backend_interface/objects/image_download_mode"
+	"github.com/kurtosis-tech/kurtosis/core/launcher/args"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/enclave_structure"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/instructions_plan/resolver"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/startosis_constants"
@@ -103,7 +104,7 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 
 	// Let's now get the list of matching test files
-	// 
+	//
 	// We need to make sure to ignore the test files in the temporary directory
 	testFiles, testFilesErr := core.ListMatchingTestFiles(project, testFilePatternStr, filepath.Join(tempDirRootStr, "**"))
 	if testFilesErr != nil {
@@ -233,6 +234,7 @@ func runTestFunction(testFunction *core.TestFunction) (*core.TestFunctionSummary
 		interpretationTimeValueStore,     // interpretationTimeValueStore
 		processBuiltins,                  // processBuiltins
 		serviceNetwork,                   // serviceNetwork
+		args.KurtosisBackendType_Docker,  // kurtosisBackendType
 	)
 	if err != nil {
 		return nil, err
