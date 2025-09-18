@@ -16,6 +16,7 @@ require (
 )
 
 require (
+	github.com/kurtosis-tech/kurtosis/core/launcher v0.0.0
 	github.com/kurtosis-tech/kurtosis/core/server v0.0.0-20250913073453-fe7442a36af2
 	github.com/stretchr/testify v1.10.0
 	go.etcd.io/bbolt v1.3.7
@@ -59,7 +60,6 @@ require (
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
-	github.com/kurtosis-tech/kurtosis/core/launcher v0.0.0 // indirect
 	github.com/kurtosis-tech/kurtosis/grpc-file-transfer/golang v0.0.0 // indirect
 	github.com/kurtosis-tech/kurtosis/metrics-library/golang v0.0.0 // indirect
 	github.com/mattn/go-shellwords v1.0.12 // indirect
