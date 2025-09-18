@@ -16,6 +16,7 @@ require (
 )
 
 require (
+	github.com/bmatcuk/doublestar/v4 v4.9.1
 	github.com/kurtosis-tech/kurtosis/core/launcher v0.0.0
 	github.com/kurtosis-tech/kurtosis/core/server v0.0.0-20250913073453-fe7442a36af2
 	github.com/stretchr/testify v1.10.0
@@ -30,7 +31,6 @@ require (
 	github.com/MichaelTJones/walk v0.0.0-20161122175330-4748e29d5718 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/ProtonMail/go-crypto v1.1.5 // indirect
-	github.com/bmatcuk/doublestar/v4 v4.9.1 // indirect
 	github.com/cloudflare/circl v1.6.0 // indirect
 	github.com/compose-spec/compose-go v1.17.0 // indirect
 	github.com/cyphar/filepath-securejoin v0.4.1 // indirect
