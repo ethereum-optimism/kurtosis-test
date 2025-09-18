@@ -8,6 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/syntax"
 	"gopkg.in/godo.v2/glob"
+
+	doublestar "github.com/bmatcuk/doublestar/v4"
 )
 
 type TestFile struct {
@@ -61,7 +63,7 @@ func ListMatchingTestFiles(project *KurtosisTestProject, testFilePattern string,
 		}
 
 		// We need to check whether the match is ignored or not
-		isIgnored, err := filepath.Match(ignoredTestFilePatternAbsolute, testFilePath)
+		isIgnored, err := doublestar.Match(ignoredTestFilePatternAbsolute, testFilePath)
 		if err != nil {
 			logrus.Warnf("Failed to match ignored test file pattern %s against %s: %v", ignoredTestFilePattern, testFilePath, err)
 			continue

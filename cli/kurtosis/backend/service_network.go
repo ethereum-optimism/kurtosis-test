@@ -133,7 +133,7 @@ func (network *KurtosisTestServiceNetwork) RunExecs(
 	return nil, nil, unimplemented("RunExecs")
 }
 
-func (network *KurtosisTestServiceNetwork) HttpRequestService(ctx context.Context, serviceIdentifier string, portId string, method string, contentType string, endpoint string, body string, headers map[string]string) (*http.Response, error) {
+func (network *KurtosisTestServiceNetwork) HttpRequestService(context.Context, *service.Service, string, string, string, string, string, map[string]string) (*http.Response, error) {
 	return nil, unimplemented("HttpRequestService")
 }
 

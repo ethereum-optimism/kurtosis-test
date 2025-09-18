@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"github.com/kurtosis-tech/kurtosis/core/launcher/args"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/service_network"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/interpretation_time_value_store"
@@ -16,6 +17,7 @@ func CreateInterpreter(
 	interpretationTimeValueStore *interpretation_time_value_store.InterpretationTimeValueStore,
 	processBuiltins startosis_engine.StartosisInterpreterBuiltinsProcessor,
 	serviceNetwork service_network.ServiceNetwork,
+	kurtosisBackendType args.KurtosisBackendType,
 ) (*startosis_engine.StartosisInterpreter, error) {
 	return startosis_engine.NewStartosisInterpreterWithBuiltinsProcessor(
 		serviceNetwork,
@@ -25,5 +27,6 @@ func CreateInterpreter(
 		"", // No enviornment variables
 		interpretationTimeValueStore,
 		processBuiltins,
+		kurtosisBackendType,
 	), nil
 }
