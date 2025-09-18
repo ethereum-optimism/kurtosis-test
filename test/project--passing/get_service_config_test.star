@@ -29,7 +29,11 @@ def test_get_service_config(plan):
         ),
     )
 
+    kurtosistest.debug("added service")
+
     service_config = kurtosistest.get_service_config(service_name = service_name)
+
+    kurtosistest.debug("got service config")
 
     assert.ne(service_config, None)
     assert.eq(service_config.image, image_name)
