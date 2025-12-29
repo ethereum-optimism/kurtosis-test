@@ -5,11 +5,11 @@ go 1.23.0
 toolchain go1.23.6
 
 require (
-	github.com/kurtosis-tech/kurtosis/api/golang v1.11.1
+	github.com/kurtosis-tech/kurtosis/api/golang v1.14.1
 	github.com/kurtosis-tech/kurtosis/container-engine-lib v0.0.0
 	github.com/kurtosis-tech/kurtosis/core/files_artifacts_expander v0.0.0 // indirect
 	github.com/kurtosis-tech/kurtosis/name_generator v0.0.0 // indirect
-	github.com/kurtosis-tech/kurtosis/path-compression v0.0.0-20250827174605-dfe0800d6595 // indirect
+	github.com/kurtosis-tech/kurtosis/path-compression v0.0.0-20251216015242-2b173aa39903 // indirect
 	github.com/kurtosis-tech/stacktrace v0.0.0-20211028211901-1c67a77b5409 // indirect
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.1
@@ -18,7 +18,7 @@ require (
 require (
 	github.com/bmatcuk/doublestar/v4 v4.9.1
 	github.com/kurtosis-tech/kurtosis/core/launcher v0.0.0
-	github.com/kurtosis-tech/kurtosis/core/server v0.0.0-20250913073453-fe7442a36af2
+	github.com/kurtosis-tech/kurtosis/core/server v0.0.0-20251216015242-2b173aa39903
 	github.com/stretchr/testify v1.10.0
 	go.etcd.io/bbolt v1.3.7
 	go.starlark.net v0.0.0-20230224151120-c52844e64a10
@@ -108,18 +108,20 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 )
 
-replace github.com/kurtosis-tech/kurtosis/container-engine-lib v0.0.0 => github.com/kurtosis-tech/kurtosis/container-engine-lib v0.0.0-20250827174605-dfe0800d6595
+replace github.com/kurtosis-tech/kurtosis/container-engine-lib v0.0.0 => github.com/kurtosis-tech/kurtosis/container-engine-lib v0.0.0-20251216015242-2b173aa39903
 
-replace github.com/kurtosis-tech/kurtosis/core/files_artifacts_expander v0.0.0 => github.com/kurtosis-tech/kurtosis/core/files_artifacts_expander v0.0.0-20250827174605-dfe0800d6595
+replace github.com/kurtosis-tech/kurtosis/core/files_artifacts_expander v0.0.0 => github.com/kurtosis-tech/kurtosis/core/files_artifacts_expander v0.0.0-20251216015242-2b173aa39903
 
-replace github.com/kurtosis-tech/kurtosis/core/launcher v0.0.0 => github.com/kurtosis-tech/kurtosis/core/launcher v0.0.0-20250827174605-dfe0800d6595
+replace github.com/kurtosis-tech/kurtosis/core/launcher v0.0.0 => github.com/kurtosis-tech/kurtosis/core/launcher v0.0.0-20251216015242-2b173aa39903
 
-replace github.com/kurtosis-tech/kurtosis/grpc-file-transfer/golang v0.0.0 => github.com/kurtosis-tech/kurtosis/grpc-file-transfer/golang v0.0.0-20250827174605-dfe0800d6595
+replace github.com/kurtosis-tech/kurtosis/core/server v0.0.0 => github.com/kurtosis-tech/kurtosis/core/server v0.0.0-20251216015242-2b173aa39903
 
-replace github.com/kurtosis-tech/kurtosis/name_generator v0.0.0 => github.com/kurtosis-tech/kurtosis/name_generator v0.0.0-20250827174605-dfe0800d6595
+replace github.com/kurtosis-tech/kurtosis/grpc-file-transfer/golang v0.0.0 => github.com/kurtosis-tech/kurtosis/grpc-file-transfer/golang v0.0.0-20251216015242-2b173aa39903
 
-replace github.com/kurtosis-tech/kurtosis/metrics-library/golang v0.0.0 => github.com/kurtosis-tech/kurtosis/metrics-library/golang v0.0.0-20250827174605-dfe0800d6595
+replace github.com/kurtosis-tech/kurtosis/name_generator v0.0.0 => github.com/kurtosis-tech/kurtosis/name_generator v0.0.0-20251216015242-2b173aa39903
+
+replace github.com/kurtosis-tech/kurtosis/metrics-library/golang v0.0.0 => github.com/kurtosis-tech/kurtosis/metrics-library/golang v0.0.0-20251216015242-2b173aa39903
 
 replace github.com/kurtosis-tech/kurtosis/api/golang v0.84.10 => github.com/kurtosis-tech/kurtosis/api/golang v1.11.1
 
-replace github.com/kurtosis-tech/kurtosis/kurtosis_version v0.0.0 => github.com/kurtosis-tech/kurtosis/kurtosis_version v0.0.0-20250827174605-dfe0800d6595
+replace github.com/kurtosis-tech/kurtosis/kurtosis_version v0.0.0 => github.com/kurtosis-tech/kurtosis/kurtosis_version v0.0.0-20251216015242-2b173aa39903

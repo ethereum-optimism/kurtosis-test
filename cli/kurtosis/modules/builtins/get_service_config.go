@@ -159,6 +159,7 @@ func toStarlarkServiceConfig(serviceName string, serviceConfig *service.ServiceC
 		filesToBeMoved,      // files_to_be_moved
 		starlark.Bool(serviceConfig.GetTiniEnabled()), // tini_enabled
 		starlark.Bool(serviceConfig.GetTtyEnabled()),  // tty_enabled
+		stringArrayToStarlarkList([]string{}),         // init_commands (new field)
 	}
 
 	argumentDefinitions := service_config.NewServiceConfigType().Arguments
