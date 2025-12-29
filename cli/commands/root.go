@@ -13,6 +13,7 @@ import (
 	"github.com/kurtosis-tech/kurtosis/container-engine-lib/lib/backend_interface/objects/image_download_mode"
 	"github.com/kurtosis-tech/kurtosis/core/launcher/args"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/enclave_structure"
+	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/instructions_plan"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/instructions_plan/resolver"
 	"github.com/kurtosis-tech/kurtosis/core/server/api_container/server/startosis_engine/startosis_constants"
 
@@ -254,6 +255,7 @@ func runTestFunction(testFunction *core.TestFunction) (*core.TestFunctionSummary
 		enclave_structure.NewEnclaveComponents(), // enclaveComponents
 		resolver.NewInstructionsPlanMask(0),      // instructionsPlanMask
 		image_download_mode.ImageDownloadMode_Missing, // imageDownloadMode
+		instructions_plan.NewInstructionsPlan(),  // instructionsPlan
 	)
 
 	// We add any interpretation errors to the summary
